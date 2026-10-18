@@ -81,6 +81,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:'Sarabun',system-
 .s-inp::placeholder{opacity:.28;font-weight:400;}
 .s-btn{padding:12px 20px;background:var(--primary-mid);color:#fff;border:none;border-radius:9px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .18s,transform .1s;}
 .s-btn:hover{background:var(--primary-hi);}
+.s-btn:disabled{opacity:.7;cursor:wait;}
 .s-btn:active{transform:scale(.96);}
 .s-hint{font-size:12px;color:var(--muted);margin-top:9px;}
 .s-hint code{font-family:'IBM Plex Mono',monospace;background:var(--surface-2);padding:2px 6px;border-radius:4px;}
@@ -608,35 +609,54 @@ function renderSingle(zone){
 }
 
 // ── Search ────────────────────────────────────────────
-function doSearch(){
+// ══════════════════════════════════════════════════════
+//  เชื่อมกับ Google Sheets
+//  วาง URL ของ Web App (ลงท้ายด้วย /exec) ระหว่างเครื่องหมาย ' '
+//  ถ้าเว้นว่างไว้ ระบบจะใช้ข้อมูล DATA / GROUPS ในไฟล์นี้แทน
+// ══════════════════════════════════════════════════════
+const API_URL = 'https://script.google.com/macros/s/AKfycbzlBD3wLkVF7zsDypbriGK6rmtu1O4QpaBi1QSUdUOqfOgb7eAoO2zS4uusUgldJST-7g/exec';
+
+function showError(msg){
+  const c=document.getElementById('errCard');
+  c.textContent=msg; c.hidden=false;
+  foundEntry=null; activeZone='all'; updateTabs(); renderAll();
+}
+
+async function lookup(q){
+  if(!API_URL) return byId[q]||null;
+  const r=await fetch(API_URL+'?id='+encodeURIComponent(q));
+  if(!r.ok) throw new Error('HTTP '+r.status);
+  const j=await r.json();
+  return j.found?{id:j.id,room:j.room,seat:String(j.seat||'').toUpperCase()}:null;
+}
+
+async function doSearch(){
   const q=document.getElementById('sid').value.trim().toUpperCase();
+  const btn=document.querySelector('.s-btn');
   document.getElementById('errCard').hidden=true;
   document.getElementById('infoStrip').hidden=true;
   if(!q)return;
 
-  const s=byId[q];
-  if(!s){
-    document.getElementById('errId').textContent=q;
-    document.getElementById('errCard').hidden=false;
-    foundEntry=null; updateTabs(); renderAll();
-    return;
-  }
+  btn.disabled=true; btn.textContent='กำลังค้นหา…';
+  let s;
+  try{ s=await lookup(q); }
+  catch(e){ console.error(e); showError('เชื่อมต่อฐานข้อมูลไม่ได้ ลองใหม่อีกครั้ง'); return; }
+  finally{ btn.disabled=false; btn.textContent='ค้นหา'; }
+
+  if(!s){ showError(`ไม่พบรหัสนักศึกษา "${q}" ในระบบ`); return; }
+  if(!parseSeat(s.seat)){ showError(`รหัส ${q} ยังไม่ได้กำหนดที่นั่ง`); return; }
 
   foundEntry=s;
   const p=parseSeat(s.seat);
   document.getElementById('rId').textContent=s.id;
-  document.getElementById('rRoom').textContent=s.room;
+  document.getElementById('rRoom').textContent=s.room||'—';
   document.getElementById('rSeat').textContent=s.seat;
   document.getElementById('rZone').textContent=p?.zone?'โซน '+p.zone:'—';
   document.getElementById('rZoneSub').textContent=p?.zone&&VENUE[p.zone]?VENUE[p.zone].floor:'';
   document.getElementById('rDesc').textContent=descSeat(p);
   document.getElementById('infoStrip').hidden=false;
 
-  if(p?.zone){
-    activeZone=p.zone;
-    updateTabs();
-    renderSingle(p.zone);
-  }
+  if(p?.zone){ activeZone=p.zone; updateTabs(); renderSingle(p.zone); }
   setTimeout(()=>document.getElementById('infoStrip').scrollIntoView({behavior:'smooth',block:'start'}),80);
 }
 
