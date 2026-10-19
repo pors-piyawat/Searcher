@@ -98,6 +98,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:'Sarabun',system-
 .i-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
 .i-val{font-size:19px;font-weight:700;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;word-break:break-all;}
 .i-val.iv-room{font-size:24px;color:var(--primary-hi);}
+.i-val.iv-adv{font-family:'Sarabun',sans-serif;font-size:17px;line-height:1.35;word-break:normal;}
 .i-val.iv-zone{font-size:24px;color:var(--accent);}
 .i-val.iv-seat{font-size:22px;color:var(--accent);}
 .i-sub{font-size:12px;color:var(--muted);margin-top:2px;font-family:'Sarabun',sans-serif;}
@@ -264,6 +265,10 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:'Sarabun',system-
 .seat-row.row-hl .seat-cells{border-radius:6px;box-shadow:0 0 0 3px var(--accent-warm);animation:glow 1.8s ease-in-out infinite;}
 .seat-row.row-hl .row-num{color:var(--accent);font-weight:800;}
 @media(prefers-reduced-motion:reduce){.sv-rowhl,.seat-row.row-hl .seat-cells{animation:none;}}
+.map-hint.found{font-size:14px;color:var(--fg);margin-top:10px;display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;}
+.map-hint.found b{color:var(--accent);}
+.hint-btn{padding:6px 14px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:filter .18s;}
+.hint-btn:hover{filter:brightness(1.1);}
 </style>
 </head>
 <body>
@@ -302,6 +307,10 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:'Sarabun',system-
       <div class="info-cell">
         <div class="i-lbl">รหัสนักศึกษา</div>
         <div class="i-val" id="rId">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="i-lbl">อาจารย์ที่ปรึกษา</div>
+        <div class="i-val iv-adv" id="rAdvisor">—</div>
       </div>
       <div class="info-cell">
         <div class="i-lbl">ห้อง / กลุ่ม</div>
@@ -391,7 +400,8 @@ const GROUPS = {
 };
 
 // ══════════════════════════════════════════════════════
-//  ข้อมูลนักศึกษา  [รหัส, ห้อง/กลุ่ม, รหัสที่นั่ง]
+//  ข้อมูลนักศึกษา  [รหัส, ห้อง/กลุ่ม, รหัสที่นั่ง, อาจารย์ที่ปรึกษา]
+//  อาจารย์ที่ปรึกษาใส่หรือไม่ใส่ก็ได้
 //  รหัสที่นั่งใส่ได้ 4 แบบ:
 //    "A05-7"    ที่นั่งเดียว (โซน A แถว 5 ที่นั่ง 7)
 //    "A05"      ทั้งแถว
@@ -400,8 +410,8 @@ const GROUPS = {
 //  ★ แทนที่ด้วยข้อมูลจริงก่อนใช้งาน ★
 // ══════════════════════════════════════════════════════
 const DATA = [
-  ["B7100001","B1217",""],["B7100002","B1217",""],["B7100003","B1217",""],
-  ["B6837136","หอประชุม","A05"],
+  ["B7100001","B1217","","ผศ.ดร.ตัวอย่าง ทดสอบ"],["B7100002","B1217","","ผศ.ดร.ตัวอย่าง ทดสอบ"],["B7100003","B1217","","ผศ.ดร.ตัวอย่าง ทดสอบ"],
+  ["B6837136","หอประชุม","A05","อ.ตัวอย่าง ใจดี"],
   ["B7012345","หอประชุม","A01-8"],["B7012346","หอประชุม","A01-9"],
   ["B7012347","หอประชุม","A04-5"],["B7012348","หอประชุม","A08-11"],
   ["B7012349","หอประชุม","A12-14"],["B7012350","หอประชุม","A16-20"],
@@ -426,9 +436,9 @@ const DATA = [
 
 // ── Lookups ──────────────────────────────────────────
 const byId={}, bySeat={};
-for(const [id,room,s0] of DATA){
+for(const [id,room,s0,advisor] of DATA){
   const seat=(s0||GROUPS[room]||'').toUpperCase();
-  byId[id.toUpperCase()]={id,room,seat};
+  byId[id.toUpperCase()]={id,room,seat,advisor:advisor||''};
   bySeat[room+':'+seat]=id;
 }
 
@@ -555,7 +565,7 @@ function renderAll(){
 
   document.getElementById('mapBody').innerHTML=
     s+
-    `<div class="map-hint">แตะที่โซนเพื่อดูที่นั่งแบบละเอียด</div>`;
+    (fz?`<div class="map-hint found">ที่นั่งของคุณอยู่ <b>โซน ${fz}</b> · <button class="hint-btn" onclick="selectZone('${fz}')">ดูโซน ${fz} แบบละเอียด →</button></div>`:`<div class="map-hint">แตะที่โซนเพื่อดูที่นั่งแบบละเอียด</div>`);
 }
 
 // ══════════════════════════════════════════════════════
@@ -614,7 +624,7 @@ function renderSingle(zone){
 //  วาง URL ของ Web App (ลงท้ายด้วย /exec) ระหว่างเครื่องหมาย ' '
 //  ถ้าเว้นว่างไว้ ระบบจะใช้ข้อมูล DATA / GROUPS ในไฟล์นี้แทน
 // ══════════════════════════════════════════════════════
-const API_URL = 'https://script.google.com/macros/s/AKfycbzlBD3wLkVF7zsDypbriGK6rmtu1O4QpaBi1QSUdUOqfOgb7eAoO2zS4uusUgldJST-7g/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyiwplB9RImNFzpDc0RKfCDCOohrPPEae4O8ddj9zW-Zc6nJW6O2mnl7mtdjkGgaLUpVw/exec';
 
 function showError(msg){
   const c=document.getElementById('errCard');
@@ -627,7 +637,7 @@ async function lookup(q){
   const r=await fetch(API_URL+'?id='+encodeURIComponent(q));
   if(!r.ok) throw new Error('HTTP '+r.status);
   const j=await r.json();
-  return j.found?{id:j.id,room:j.room,seat:String(j.seat||'').toUpperCase()}:null;
+  return j.found?{id:j.id,room:j.room,seat:String(j.seat||'').toUpperCase(),advisor:j.advisor||''}:null;
 }
 
 async function doSearch(){
@@ -650,13 +660,15 @@ async function doSearch(){
   const p=parseSeat(s.seat);
   document.getElementById('rId').textContent=s.id;
   document.getElementById('rRoom').textContent=s.room||'—';
+  document.getElementById('rAdvisor').textContent=s.advisor||'—';
   document.getElementById('rSeat').textContent=s.seat;
   document.getElementById('rZone').textContent=p?.zone?'โซน '+p.zone:'—';
   document.getElementById('rZoneSub').textContent=p?.zone&&VENUE[p.zone]?VENUE[p.zone].floor:'';
   document.getElementById('rDesc').textContent=descSeat(p);
   document.getElementById('infoStrip').hidden=false;
 
-  if(p?.zone){ activeZone=p.zone; updateTabs(); renderSingle(p.zone); }
+  // แสดงผังรวมก่อน ให้ผู้ใช้กดเข้าโซนเองเพื่อดูแบบละเอียด
+  activeZone='all'; updateTabs(); renderAll();
   setTimeout(()=>document.getElementById('infoStrip').scrollIntoView({behavior:'smooth',block:'start'}),80);
 }
 
@@ -670,7 +682,21 @@ inp.addEventListener('input',e=>{
 });
 
 // ── Boot ──────────────────────────────────────────────
+//  ลิงก์จากระบบอื่นได้:
+//    ?id=B6837136          ค้นหารหัสนี้ให้อัตโนมัติ
+//    ?embed=1              ซ่อนหัวเว็บ (สำหรับฝังใน iframe)
+//    ?id=B6837136&embed=1  ฝังแล้วแสดงผลทันที ซ่อนช่องค้นหา
+const params=new URLSearchParams(location.search);
+if(params.get('embed')==='1'){
+  document.querySelector('.hdr')?.remove();
+  document.querySelector('.gold-stripe')?.remove();
+  if(params.get('id')) document.querySelector('.search-card').hidden=true;
+}
 renderAll();
+if(params.get('id')){
+  inp.value=params.get('id').trim().toUpperCase();
+  doSearch();
+}
 </script>
 </body>
 </html>
