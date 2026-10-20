@@ -331,6 +331,17 @@ button.hdr-stats:hover .hs-more{color:#fff;}
 .sd-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 20px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);}
 .sd-refresh{padding:6px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--fg);font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
 .sd-refresh:hover{border-color:var(--primary-hi);}
+
+/* ── สลับรอบ ── */
+.sess-switch{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 18px;border-bottom:1px solid var(--border);background:var(--surface-2);}
+.sess-switch[hidden]{display:none;}
+.ss-lbl{font-size:13px;font-weight:600;color:var(--muted);margin-right:2px;}
+.ss-btn{padding:6px 14px;border-radius:99px;border:1.5px solid var(--border);background:var(--surface);color:var(--fg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;}
+.ss-btn:hover{border-color:var(--primary-hi);}
+.ss-btn.on{background:var(--primary-mid);border-color:var(--primary-mid);color:#fff;}
+.ss-ok{color:var(--accent-warm);}
+.ss-btn:not(.on) .ss-ok{color:var(--accent);}
+.i-val.iv-sess{font-family:'Sarabun',sans-serif;font-size:19px;color:var(--primary-hi);}
 </style>
 </head>
 <body>
@@ -338,7 +349,7 @@ button.hdr-stats:hover .hs-more{color:#fff;}
   <button type="button" class="hdr-stats" id="statsCard" aria-live="polite" title="" onclick="openStats()" aria-haspopup="dialog">
     <span class="hs-top"><span class="hs-lbl">ลงทะเบียนแล้ว</span><span class="hs-num"><b id="stReg">–</b>/<span id="stTotal">–</span></span></span>
     <span class="hs-bar" id="stBar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><span class="hs-fill" id="stFill"></span></span>
-    <span class="hs-more">ดูแยกห้อง/สาขา ›</span>
+    <span class="hs-more">ดูแยกรอบ/ห้อง/สาขา ›</span>
   </button>
   <h1 class="brand">
     <svg class="brand-mark" viewBox="2 4 36 34" aria-hidden="true">
@@ -370,14 +381,23 @@ button.hdr-stats:hover .hs-more{color:#fff;}
 
   <div class="info-strip" id="infoStrip" hidden>
     <div class="info-hdr">ข้อมูลที่นั่งสอบ</div>
+    <div class="sess-switch" id="sessSwitch" hidden></div>
     <div class="info-grid">
       <div class="info-cell">
         <div class="i-lbl">รหัสนักศึกษา</div>
         <div class="i-val" id="rId">—</div>
       </div>
       <div class="info-cell">
+        <div class="i-lbl">สาขา</div>
+        <div class="i-val iv-adv" id="rMajor">—</div>
+      </div>
+      <div class="info-cell">
         <div class="i-lbl">อาจารย์ที่ปรึกษา</div>
         <div class="i-val iv-adv" id="rAdvisor">—</div>
+      </div>
+      <div class="info-cell">
+        <div class="i-lbl">รอบ</div>
+        <div class="i-val iv-sess" id="rSession">—</div>
       </div>
       <div class="info-cell">
         <div class="i-lbl">ห้อง / กลุ่ม</div>
@@ -429,7 +449,8 @@ button.hdr-stats:hover .hs-more{color:#fff;}
     <button type="button" class="sd-x" onclick="closeStats()" aria-label="ปิด">✕</button>
   </div>
   <div class="sd-tabs" role="tablist">
-    <button type="button" class="sd-tab on" data-k="byRoom" role="tab" aria-selected="true">แยกตามห้อง</button>
+    <button type="button" class="sd-tab on" data-k="bySession" role="tab" aria-selected="true">แยกตามรอบ</button>
+    <button type="button" class="sd-tab" data-k="byRoom" role="tab" aria-selected="false">แยกตามห้อง</button>
     <button type="button" class="sd-tab" data-k="byMajor" role="tab" aria-selected="false">แยกตามสาขา</button>
   </div>
   <div class="sd-body" id="sdBody"></div>
@@ -487,7 +508,7 @@ const GROUPS = {
 };
 
 // ══════════════════════════════════════════════════════
-//  ข้อมูลนักศึกษา  [รหัส, ห้อง/กลุ่ม, รหัสที่นั่ง, อาจารย์ที่ปรึกษา]
+//  ข้อมูลนักศึกษา  [รหัส, ห้อง/กลุ่ม, รหัสที่นั่ง, อาจารย์ที่ปรึกษา, สาขา, รอบ]
 //  อาจารย์ที่ปรึกษาใส่หรือไม่ใส่ก็ได้
 //  รหัสที่นั่งใส่ได้ 4 แบบ:
 //    "A05-7"    ที่นั่งเดียว (โซน A แถว 5 ที่นั่ง 7)
@@ -502,9 +523,9 @@ const DATA = [
 
 // ── Lookups ──────────────────────────────────────────
 const byId={}, bySeat={};
-for(const [id,room,s0,advisor] of DATA){
+for(const [id,room,s0,advisor,major,session] of DATA){
   const seat=(s0||GROUPS[room]||'').toUpperCase();
-  byId[id.toUpperCase()]={id,room,seat,advisor:advisor||''};
+  byId[id.toUpperCase()]={id,room,seat,advisor:advisor||'',major:major||'',session:session||''};
   bySeat[room+':'+seat]=id;
 }
 
@@ -690,7 +711,7 @@ function renderSingle(zone){
 //  วาง URL ของ Web App (ลงท้ายด้วย /exec) ระหว่างเครื่องหมาย ' '
 //  ถ้าเว้นว่างไว้ ระบบจะใช้ข้อมูล DATA / GROUPS ในไฟล์นี้แทน
 // ══════════════════════════════════════════════════════
-const API_URL = 'https://script.google.com/macros/s/AKfycbx0ht4xNeMsdAId0tqnQUJRatwDmRbXF60xzm6rQ5Y1tJUeUwGUDZb8zyN1AsRs9PBv0Q/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbygcrXKccVqAcTzviwXo0le_0pzTtW7DQmXalp9LGSN9wP5KwCqdYSVlk99BiC6fOLjQA/exec';
 
 function showError(msg){
   const c=document.getElementById('errCard');
@@ -734,13 +755,19 @@ async function api(params){
 const localReg={};
 function localStats(){return{total:Object.keys(byId).length,registered:Object.keys(localReg).length};}
 
-function toEntry(j){
-  return j&&j.found?{id:j.id,room:j.room,seat:String(j.seat||'').toUpperCase(),advisor:j.advisor||'',registeredAt:j.registeredAt||''}:null;
+function normEntry(m){
+  return {id:m.id,room:m.room||'',seat:String(m.seat||'').toUpperCase(),advisor:m.advisor||'',
+          major:m.major||'',session:m.session||'',registeredAt:m.registeredAt||''};
+}
+// คืนค่าเป็นรายการ (คนเดียวอาจอยู่หลายรอบ)
+function toEntries(j){
+  if(!j||!j.found) return [];
+  return (Array.isArray(j.matches)&&j.matches.length?j.matches:[j]).map(normEntry);
 }
 
 async function lookup(q){
-  if(!API_URL){const s=byId[q];return s?{...s,registeredAt:localReg[q]||''}:null;}
-  return toEntry(await api({id:q}));
+  if(!API_URL){const s=byId[q];return s?[{...s,registeredAt:localReg[q]||''}]:[];}
+  return toEntries(await api({id:q}));
 }
 
 // ── ยอดลงทะเบียน ─────────────────────────────────────
@@ -766,7 +793,7 @@ async function loadStats(){
 }
 
 // ── ยอดแยกห้อง/สาขา (กดที่ป้ายมุมขวาบน) ─────────────────
-let detailData=null, detailKey='byRoom';
+let detailData=null, detailKey='bySession';
 function localDetail(){
   const room={};
   for(const s of Object.values(byId)){
@@ -774,7 +801,8 @@ function localDetail(){
     room[k].total++; if(localReg[s.id.toUpperCase()]) room[k].registered++;
   }
   const st=localStats();
-  return {...st,byRoom:Object.values(room).sort((a,b)=>a.name.localeCompare(b.name,'th')),byMajor:[{name:'(ไม่ระบุ)',...st}]};
+  const grp=f=>{const m={};for(const s of Object.values(byId)){const k=s[f]||'(ไม่ระบุ)';m[k]=m[k]||{name:k,total:0,registered:0};m[k].total++;if(localReg[s.id.toUpperCase()])m[k].registered++;}return Object.values(m);};
+  return {...st,byRoom:Object.values(room).sort((a,b)=>a.name.localeCompare(b.name,'th')),byMajor:grp('major'),bySession:grp('session')};
 }
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function renderDetail(){
@@ -782,7 +810,7 @@ function renderDetail(){
   if(!detailData){return;}
   const list=detailData[detailKey]||[];
   if(!list.length){body.innerHTML='<div class="sd-empty">ยังไม่มีข้อมูล</div>';return;}
-  body.innerHTML='<table class="sd-table"><thead><tr><th>'+(detailKey==='byRoom'?'ห้อง / กลุ่ม':'สาขา')+'</th><th>ลงทะเบียนแล้ว</th><th class="r">ทั้งหมด</th></tr></thead><tbody>'+
+  body.innerHTML='<table class="sd-table"><thead><tr><th>'+({byRoom:'ห้อง / กลุ่ม',byMajor:'สาขา',bySession:'รอบ'}[detailKey])+'</th><th>ลงทะเบียนแล้ว</th><th class="r">ทั้งหมด</th></tr></thead><tbody>'+
     list.map(r=>{const pct=r.total?Math.round(r.registered*100/r.total):0;
       return `<tr><td class="nm">${esc(r.name)}</td><td><div class="sd-cell"><span class="sd-bar"><span style="width:${pct}%"></span></span><span class="sd-n"><b>${r.registered.toLocaleString('th-TH')}</b> <small>${pct}%</small></span></div></td><td class="r">${r.total.toLocaleString('th-TH')}</td></tr>`;}).join('')+
     '</tbody></table>';
@@ -792,7 +820,7 @@ async function loadDetail(){
   sum.textContent='กำลังโหลด…';
   try{
     detailData=API_URL?await api({action:'stats',detail:'1'}):localDetail();
-    if(!detailData||!detailData.byRoom) throw new Error('Apps Script ยังเป็นเวอร์ชันเก่า (อัปเดต Code.gs แล้วทำให้ใช้งานได้เป็นเวอร์ชันใหม่)');
+    if(!detailData||!detailData.byRoom||!detailData.bySession) throw new Error('Apps Script ยังเป็นเวอร์ชันเก่า (อัปเดต Code.gs แล้วทำให้ใช้งานได้เป็นเวอร์ชันใหม่)');
     renderStats(detailData);
     const t=detailData.total,r=detailData.registered;
     sum.textContent=`ต้องลงทะเบียน ${t.toLocaleString('th-TH')} คน · ลงทะเบียนแล้ว ${r.toLocaleString('th-TH')} คน · ยังไม่มา ${(t-r).toLocaleString('th-TH')} คน`;
@@ -838,9 +866,11 @@ async function doRegister(){
       foundEntry.registeredAt=localReg[foundEntry.id.toUpperCase()];
       renderStats(localStats());
     }else{
-      const e=toEntry(await api({action:'register',id:foundEntry.id}));
+      const list=toEntries(await api({action:'register',id:foundEntry.id,session:foundEntry.session}));
+      const e=list.find(x=>x.session===foundEntry.session)||list[0];
       if(!e||!e.registeredAt) throw new Error('บันทึกไม่สำเร็จ');
-      foundEntry.registeredAt=e.registeredAt;
+      foundMatches=list; foundEntry=e;
+      renderSessSwitch();
     }
     renderReg(foundEntry);
   }catch(e){
@@ -850,6 +880,8 @@ async function doRegister(){
   }
 }
 
+let foundMatches=[];
+
 async function doSearch(){
   const q=document.getElementById('sid').value.trim().toUpperCase();
   const btn=document.querySelector('.s-btn');
@@ -858,29 +890,49 @@ async function doSearch(){
   if(!q)return;
 
   btn.disabled=true; btn.textContent='กำลังค้นหา…';
-  let s;
-  try{ s=await lookup(q); }
+  let list;
+  try{ list=await lookup(q); }
   catch(e){ console.error(e); showError('เชื่อมต่อฐานข้อมูลไม่ได้ ลองใหม่อีกครั้ง ('+e.message+')'); return; }
   finally{ btn.disabled=false; btn.textContent='ค้นหา'; }
 
-  if(!s){ showError(`ไม่พบรหัสนักศึกษา "${q}" ในระบบ`); return; }
-  if(!parseSeat(s.seat)){ showError(`รหัส ${q} ยังไม่ได้กำหนดที่นั่ง`); return; }
+  if(!list.length){ showError(`ไม่พบรหัสนักศึกษา "${q}" ในระบบ`); return; }
+  if(!list.some(m=>parseSeat(m.seat))){ showError(`รหัส ${q} ยังไม่ได้กำหนดที่นั่ง`); return; }
 
+  foundMatches=list;
+  const first=list.findIndex(m=>parseSeat(m.seat));
+  showEntry(first<0?0:first);
+  setTimeout(()=>document.getElementById('infoStrip').scrollIntoView({behavior:'smooth',block:'start'}),80);
+}
+
+// แสดงข้อมูลของรอบที่เลือก
+function showEntry(i){
+  const s=foundMatches[i]; if(!s)return;
   foundEntry=s;
   const p=parseSeat(s.seat);
-  document.getElementById('rId').textContent=s.id;
-  document.getElementById('rRoom').textContent=s.room||'—';
-  document.getElementById('rAdvisor').textContent=s.advisor||'—';
-  document.getElementById('rSeat').textContent=s.seat;
-  document.getElementById('rZone').textContent=p?.zone?'โซน '+p.zone:'—';
-  document.getElementById('rZoneSub').textContent=p?.zone&&VENUE[p.zone]?VENUE[p.zone].floor:'';
-  document.getElementById('rDesc').textContent=descSeat(p);
+  const set=(id,v)=>{document.getElementById(id).textContent=v;};
+  set('rId',s.id);
+  set('rMajor',s.major||'—');
+  set('rAdvisor',s.advisor||'—');
+  set('rSession',s.session||'—');
+  set('rRoom',s.room||'—');
+  set('rSeat',p?s.seat:'ยังไม่กำหนด');
+  set('rZone',p?.zone?'โซน '+p.zone:'—');
+  set('rZoneSub',p?.zone&&VENUE[p.zone]?VENUE[p.zone].floor:'');
+  set('rDesc',p?descSeat(p):'');
+  renderSessSwitch();
   renderReg(s);
   document.getElementById('infoStrip').hidden=false;
-
   // แสดงผังรวมก่อน ให้ผู้ใช้กดเข้าโซนเองเพื่อดูแบบละเอียด
   activeZone='all'; updateTabs(); renderAll();
-  setTimeout(()=>document.getElementById('infoStrip').scrollIntoView({behavior:'smooth',block:'start'}),80);
+}
+
+// ปุ่มสลับรอบ (แสดงเมื่ออยู่มากกว่า 1 รอบ)
+function renderSessSwitch(){
+  const box=document.getElementById('sessSwitch');
+  if(foundMatches.length<2){box.hidden=true;box.innerHTML='';return;}
+  box.hidden=false;
+  box.innerHTML='<span class="ss-lbl">คุณมี '+foundMatches.length+' รอบ:</span>'+foundMatches.map((m,i)=>
+    `<button type="button" class="ss-btn${m===foundEntry?' on':''}" onclick="showEntry(${i})">${esc(m.session||('รอบที่ '+(i+1)))}${m.registeredAt?' <span class="ss-ok">✓</span>':''}</button>`).join('');
 }
 
 // ── Input ─────────────────────────────────────────────
