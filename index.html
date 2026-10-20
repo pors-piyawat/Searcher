@@ -269,10 +269,38 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:'Sarabun',system-
 .map-hint.found b{color:var(--accent);}
 .hint-btn{padding:6px 14px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:filter .18s;}
 .hint-btn:hover{filter:brightness(1.1);}
+
+/* ── ยอดลงทะเบียน (มุมขวาบน) ── */
+.hdr{position:relative;}
+.hdr-stats{position:absolute;top:12px;right:max(14px,env(safe-area-inset-right,0px));min-width:118px;padding:6px 10px 7px;border-radius:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;text-align:left;}
+.hs-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.hs-lbl{font-size:10px;font-weight:600;letter-spacing:.04em;color:rgba(255,255,255,.65);}
+.hs-num{font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(255,255,255,.7);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.hs-num b{font-size:14px;font-weight:600;color:var(--accent-warm);}
+.hs-bar{height:4px;margin-top:5px;border-radius:99px;background:rgba(255,255,255,.15);overflow:hidden;}
+.hs-fill{height:100%;width:0;border-radius:99px;background:var(--accent-warm);transition:width .6s ease;}
+@media(max-width:520px){.hdr{padding-top:58px;}.hdr-stats{top:10px;}}
+@media(prefers-reduced-motion:reduce){.hs-fill,.hdr-stats{transition:none;}}
+
+/* ── สถานะลงทะเบียนของคนที่ค้น ── */
+.reg-row{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;padding:12px 18px;border-top:1px solid var(--border);}
+.reg-row:empty{display:none;}
+.reg-wait{font-size:14px;font-weight:600;color:var(--muted);}
+.reg-btn{padding:10px 22px;background:var(--accent);color:#fff;border:none;border-radius:9px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:filter .18s,transform .1s;}
+.reg-btn:hover{filter:brightness(1.08);}
+.reg-btn:active{transform:scale(.97);}
+.reg-btn:disabled{opacity:.7;cursor:wait;}
+.reg-done{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--accent);flex-wrap:wrap;justify-content:center;}
+.reg-check{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:14px;}
+.reg-time{font-weight:500;color:var(--muted);font-size:13px;}
 </style>
 </head>
 <body>
 <header class="hdr">
+  <div class="hdr-stats" id="statsCard" aria-live="polite" title="">
+    <div class="hs-top"><span class="hs-lbl">ลงทะเบียนแล้ว</span><span class="hs-num"><b id="stReg">–</b>/<span id="stTotal">–</span></span></div>
+    <div class="hs-bar" id="stBar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><div class="hs-fill" id="stFill"></div></div>
+  </div>
   <h1 class="brand">
     <svg class="brand-mark" viewBox="2 4 36 34" aria-hidden="true">
       <rect x="4" y="6" width="9" height="8" rx="2"/><rect x="15.5" y="6" width="9" height="8" rx="2"/><rect x="27" y="6" width="9" height="8" rx="2"/>
@@ -327,6 +355,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:'Sarabun',system-
         <div class="i-sub" id="rDesc">—</div>
       </div>
     </div>
+    <div class="reg-row" id="regRow"></div>
   </div>
 
   <!-- Map card — always visible -->
@@ -603,7 +632,7 @@ function renderSingle(zone){
 //  วาง URL ของ Web App (ลงท้ายด้วย /exec) ระหว่างเครื่องหมาย ' '
 //  ถ้าเว้นว่างไว้ ระบบจะใช้ข้อมูล DATA / GROUPS ในไฟล์นี้แทน
 // ══════════════════════════════════════════════════════
-const API_URL = 'https://script.google.com/macros/s/AKfycby_Ix2rjUAv9t8G-VcqncFuZgOSfYbBsmJz8akvlQcAuJrQPPOHJPoaZLTSV36COdEvKQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwZ0uXpJqMNE5UzcUIOHHsdvCUKR24ilhYPFJrFSZ4Jac8rH_6KQDINW4jJiMhjTv2MGg/exec';
 
 function showError(msg){
   const c=document.getElementById('errCard');
@@ -611,12 +640,108 @@ function showError(msg){
   foundEntry=null; activeZone='all'; updateTabs(); renderAll();
 }
 
+// เรียกแบบ JSONP (สำรอง กรณีเบราว์เซอร์/เครือข่ายบล็อก fetch)
+function jsonp(url){
+  return new Promise((resolve,reject)=>{
+    const cb='__searcher'+Date.now()+Math.floor(Math.random()*1e4);
+    const s=document.createElement('script');
+    const timer=setTimeout(()=>{done();reject(new Error('หมดเวลารอ (JSONP)'));},12000);
+    function done(){clearTimeout(timer);try{delete window[cb];}catch(e){window[cb]=undefined;}s.remove();}
+    window[cb]=d=>{done();resolve(d);};
+    s.onerror=()=>{done();reject(new Error('โหลดสคริปต์ไม่ได้ (JSONP)'));};
+    s.src=url+(url.includes('?')?'&':'?')+'callback='+cb;
+    document.head.appendChild(s);
+  });
+}
+
+// เรียก Web App: ลอง fetch ก่อน ไม่ได้ค่อยใช้ JSONP
+async function api(params){
+  const url=API_URL+'?'+new URLSearchParams(params).toString();
+  let j, firstErr;
+  try{
+    const r=await fetch(url,{redirect:'follow'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    j=JSON.parse(await r.text());
+  }catch(e){
+    firstErr=e;
+    try{ j=await jsonp(url); }
+    catch(e2){ throw new Error((firstErr?.message||'')+' / '+e2.message); }
+  }
+  if(j&&j.error) throw new Error(j.error);
+  if(j&&j.stats) renderStats(j.stats);
+  return j;
+}
+
+// โหมดไม่มี API: เก็บสถานะลงทะเบียนไว้ในหน่วยความจำ (ใช้ทดสอบเท่านั้น)
+const localReg={};
+function localStats(){return{total:Object.keys(byId).length,registered:Object.keys(localReg).length};}
+
+function toEntry(j){
+  return j&&j.found?{id:j.id,room:j.room,seat:String(j.seat||'').toUpperCase(),advisor:j.advisor||'',registeredAt:j.registeredAt||''}:null;
+}
+
 async function lookup(q){
-  if(!API_URL) return byId[q]||null;
-  const r=await fetch(API_URL+'?id='+encodeURIComponent(q));
-  if(!r.ok) throw new Error('HTTP '+r.status);
-  const j=await r.json();
-  return j.found?{id:j.id,room:j.room,seat:String(j.seat||'').toUpperCase(),advisor:j.advisor||''}:null;
+  if(!API_URL){const s=byId[q];return s?{...s,registeredAt:localReg[q]||''}:null;}
+  return toEntry(await api({id:q}));
+}
+
+// ── ยอดลงทะเบียน ─────────────────────────────────────
+function renderStats(st){
+  if(!st||typeof st.total!=='number')return;
+  const total=st.total, reg=Math.min(st.registered,total);
+  const pct=total?Math.round(reg*100/total):0;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('stTotal',total.toLocaleString('th-TH'));
+  set('stReg',reg.toLocaleString('th-TH'));
+  document.getElementById('stFill').style.width=pct+'%';
+  document.getElementById('stBar').setAttribute('aria-valuenow',pct);
+  document.getElementById('statsCard').title=`ต้องลงทะเบียน ${total.toLocaleString('th-TH')} คน · ลงทะเบียนแล้ว ${reg.toLocaleString('th-TH')} คน (${pct}%) · ยังไม่มา ${(total-reg).toLocaleString('th-TH')} คน`;
+  document.getElementById('statsCard').classList.add('ready');
+}
+async function loadStats(){
+  if(!API_URL){renderStats(localStats());return;}
+  try{
+    const j=await api({action:'stats'});
+    if(j&&typeof j.total==='number') renderStats(j);
+    else document.getElementById('statsCard').title='ยังดึงยอดไม่ได้: Apps Script ยังเป็นเวอร์ชันเก่า (อัปเดต Code.gs แล้วทำให้ใช้งานได้เป็นเวอร์ชันใหม่)';
+  }catch(e){ console.warn('stats',e); document.getElementById('statsCard').title='ดึงยอดไม่ได้: '+e.message; }
+}
+
+// ── ยืนยันลงทะเบียน ──────────────────────────────────
+function fmtTime(s){
+  const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+  return m?`${+m[3]}/${+m[2]}/${m[1]} เวลา ${m[4]}:${m[5]} น.`:s;
+}
+function renderReg(entry){
+  const row=document.getElementById('regRow');
+  if(!entry){row.innerHTML='';return;}
+  if(entry.registeredAt){
+    row.innerHTML=`<div class="reg-done"><span class="reg-check">✓</span> ลงทะเบียนแล้ว <span class="reg-time">${fmtTime(entry.registeredAt)}</span></div>`;
+  }else{
+    row.innerHTML=`<div class="reg-wait">ยังไม่ได้ลงทะเบียน</div><button class="reg-btn" id="regBtn" onclick="doRegister()">ยืนยันลงทะเบียน</button>`;
+  }
+}
+async function doRegister(){
+  if(!foundEntry)return;
+  const btn=document.getElementById('regBtn');
+  if(btn){btn.disabled=true;btn.textContent='กำลังบันทึก…';}
+  try{
+    if(!API_URL){
+      const d=new Date(),z=n=>String(n).padStart(2,'0');
+      localReg[foundEntry.id.toUpperCase()]=localReg[foundEntry.id.toUpperCase()]||`${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:00`;
+      foundEntry.registeredAt=localReg[foundEntry.id.toUpperCase()];
+      renderStats(localStats());
+    }else{
+      const e=toEntry(await api({action:'register',id:foundEntry.id}));
+      if(!e||!e.registeredAt) throw new Error('บันทึกไม่สำเร็จ');
+      foundEntry.registeredAt=e.registeredAt;
+    }
+    renderReg(foundEntry);
+  }catch(e){
+    console.error(e);
+    if(btn){btn.disabled=false;btn.textContent='ยืนยันลงทะเบียน';}
+    alert('บันทึกการลงทะเบียนไม่สำเร็จ ลองใหม่อีกครั้ง\n('+e.message+')');
+  }
 }
 
 async function doSearch(){
@@ -629,7 +754,7 @@ async function doSearch(){
   btn.disabled=true; btn.textContent='กำลังค้นหา…';
   let s;
   try{ s=await lookup(q); }
-  catch(e){ console.error(e); showError('เชื่อมต่อฐานข้อมูลไม่ได้ ลองใหม่อีกครั้ง'); return; }
+  catch(e){ console.error(e); showError('เชื่อมต่อฐานข้อมูลไม่ได้ ลองใหม่อีกครั้ง ('+e.message+')'); return; }
   finally{ btn.disabled=false; btn.textContent='ค้นหา'; }
 
   if(!s){ showError(`ไม่พบรหัสนักศึกษา "${q}" ในระบบ`); return; }
@@ -644,6 +769,7 @@ async function doSearch(){
   document.getElementById('rZone').textContent=p?.zone?'โซน '+p.zone:'—';
   document.getElementById('rZoneSub').textContent=p?.zone&&VENUE[p.zone]?VENUE[p.zone].floor:'';
   document.getElementById('rDesc').textContent=descSeat(p);
+  renderReg(s);
   document.getElementById('infoStrip').hidden=false;
 
   // แสดงผังรวมก่อน ให้ผู้ใช้กดเข้าโซนเองเพื่อดูแบบละเอียด
@@ -672,6 +798,8 @@ if(params.get('embed')==='1'){
   if(params.get('id')) document.querySelector('.search-card').hidden=true;
 }
 renderAll();
+loadStats();
+setInterval(()=>{ if(!document.hidden) loadStats(); },30000);
 if(params.get('id')){
   inp.value=params.get('id').trim().toUpperCase();
   doSearch();
