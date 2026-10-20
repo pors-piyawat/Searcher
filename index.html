@@ -279,7 +279,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:'Sarabun',system-
 .hs-num b{font-size:14px;font-weight:600;color:var(--accent-warm);}
 .hs-bar{height:4px;margin-top:5px;border-radius:99px;background:rgba(255,255,255,.15);overflow:hidden;}
 .hs-fill{height:100%;width:0;border-radius:99px;background:var(--accent-warm);transition:width .6s ease;}
-@media(max-width:520px){.hdr{padding-top:58px;}.hdr-stats{top:10px;}}
+@media(max-width:520px){.hdr{padding-top:86px;}.hdr-stats{top:10px;}}
 @media(prefers-reduced-motion:reduce){.hs-fill,.hdr-stats{transition:none;}}
 
 /* ── สถานะลงทะเบียนของคนที่ค้น ── */
@@ -293,14 +293,53 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:'Sarabun',system-
 .reg-done{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:var(--accent);flex-wrap:wrap;justify-content:center;}
 .reg-check{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font-size:14px;}
 .reg-time{font-weight:500;color:var(--muted);font-size:13px;}
+
+/* ── ป้ายยอด: กดได้ ── */
+button.hdr-stats{font:inherit;cursor:pointer;display:block;transition:background .18s,border-color .18s;}
+button.hdr-stats:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);}
+button.hdr-stats:focus-visible{outline:2px solid var(--accent-warm);outline-offset:2px;}
+.hdr-stats .hs-top,.hdr-stats .hs-bar,.hdr-stats .hs-fill{display:flex;}
+.hdr-stats .hs-bar{display:block;}.hdr-stats .hs-fill{display:block;}
+.hs-more{display:block;margin-top:4px;font-size:10px;color:rgba(255,255,255,.55);text-align:right;}
+button.hdr-stats:hover .hs-more{color:#fff;}
+
+/* ── หน้าต่างยอดแยก ── */
+.st-dlg{width:min(560px,calc(100vw - 24px));max-height:min(80vh,680px);padding:0;border:1px solid var(--border);border-radius:16px;background:var(--surface);color:var(--fg);box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.st-dlg[open]{display:flex;flex-direction:column;}
+.st-dlg::backdrop{background:rgba(6,16,32,.55);}
+.sd-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 20px 10px;}
+.sd-title{font-size:18px;font-weight:700;}
+.sd-sum{font-size:13px;color:var(--muted);margin-top:2px;}
+.sd-x{flex-shrink:0;width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--surface-2);color:var(--muted);font-size:15px;cursor:pointer;}
+.sd-x:hover{color:var(--fg);border-color:var(--primary-hi);}
+.sd-tabs{display:flex;gap:6px;padding:0 20px 10px;border-bottom:1px solid var(--border);}
+.sd-tab{padding:6px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--muted);font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
+.sd-tab.on{background:var(--primary-mid);border-color:var(--primary-mid);color:#fff;}
+.sd-body{overflow:auto;padding:4px 20px;flex:1;}
+.sd-empty{padding:24px 0;text-align:center;color:var(--muted);}
+.sd-table{width:100%;border-collapse:collapse;font-size:14px;}
+.sd-table th{position:sticky;top:0;background:var(--surface);text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--muted);padding:10px 6px 6px;border-bottom:1px solid var(--border);}
+.sd-table td{padding:9px 6px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.sd-table .r{text-align:right;font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+.sd-table td.nm{font-weight:600;max-width:180px;word-break:break-word;}
+.sd-cell{display:flex;align-items:center;gap:8px;min-width:140px;}
+.sd-bar{flex:1;height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden;}
+.sd-bar span{display:block;height:100%;border-radius:99px;background:var(--accent);}
+.sd-n{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.sd-n b{color:var(--accent);}
+.sd-n small{color:var(--muted);font-size:11px;}
+.sd-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 20px 16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);}
+.sd-refresh{padding:6px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--fg);font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.sd-refresh:hover{border-color:var(--primary-hi);}
 </style>
 </head>
 <body>
 <header class="hdr">
-  <div class="hdr-stats" id="statsCard" aria-live="polite" title="">
-    <div class="hs-top"><span class="hs-lbl">ลงทะเบียนแล้ว</span><span class="hs-num"><b id="stReg">–</b>/<span id="stTotal">–</span></span></div>
-    <div class="hs-bar" id="stBar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><div class="hs-fill" id="stFill"></div></div>
-  </div>
+  <button type="button" class="hdr-stats" id="statsCard" aria-live="polite" title="" onclick="openStats()" aria-haspopup="dialog">
+    <span class="hs-top"><span class="hs-lbl">ลงทะเบียนแล้ว</span><span class="hs-num"><b id="stReg">–</b>/<span id="stTotal">–</span></span></span>
+    <span class="hs-bar" id="stBar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><span class="hs-fill" id="stFill"></span></span>
+    <span class="hs-more">ดูแยกห้อง/สาขา ›</span>
+  </button>
   <h1 class="brand">
     <svg class="brand-mark" viewBox="2 4 36 34" aria-hidden="true">
       <rect x="4" y="6" width="9" height="8" rx="2"/><rect x="15.5" y="6" width="9" height="8" rx="2"/><rect x="27" y="6" width="9" height="8" rx="2"/>
@@ -380,6 +419,25 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:'Sarabun',system-
   </div>
 
 </div>
+
+<dialog class="st-dlg" id="statsDlg" aria-labelledby="stDlgTitle">
+  <div class="sd-head">
+    <div>
+      <div class="sd-title" id="stDlgTitle">ยอดลงทะเบียน</div>
+      <div class="sd-sum" id="sdSum">กำลังโหลด…</div>
+    </div>
+    <button type="button" class="sd-x" onclick="closeStats()" aria-label="ปิด">✕</button>
+  </div>
+  <div class="sd-tabs" role="tablist">
+    <button type="button" class="sd-tab on" data-k="byRoom" role="tab" aria-selected="true">แยกตามห้อง</button>
+    <button type="button" class="sd-tab" data-k="byMajor" role="tab" aria-selected="false">แยกตามสาขา</button>
+  </div>
+  <div class="sd-body" id="sdBody"></div>
+  <div class="sd-foot">
+    <span id="sdTime"></span>
+    <button type="button" class="sd-refresh" onclick="loadDetail()">↻ รีเฟรช</button>
+  </div>
+</dialog>
 
 <script>
 // ══════════════════════════════════════════════════════
@@ -632,7 +690,7 @@ function renderSingle(zone){
 //  วาง URL ของ Web App (ลงท้ายด้วย /exec) ระหว่างเครื่องหมาย ' '
 //  ถ้าเว้นว่างไว้ ระบบจะใช้ข้อมูล DATA / GROUPS ในไฟล์นี้แทน
 // ══════════════════════════════════════════════════════
-const API_URL = 'https://script.google.com/macros/s/AKfycbwZ0uXpJqMNE5UzcUIOHHsdvCUKR24ilhYPFJrFSZ4Jac8rH_6KQDINW4jJiMhjTv2MGg/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbx0ht4xNeMsdAId0tqnQUJRatwDmRbXF60xzm6rQ5Y1tJUeUwGUDZb8zyN1AsRs9PBv0Q/exec';
 
 function showError(msg){
   const c=document.getElementById('errCard');
@@ -706,6 +764,54 @@ async function loadStats(){
     else document.getElementById('statsCard').title='ยังดึงยอดไม่ได้: Apps Script ยังเป็นเวอร์ชันเก่า (อัปเดต Code.gs แล้วทำให้ใช้งานได้เป็นเวอร์ชันใหม่)';
   }catch(e){ console.warn('stats',e); document.getElementById('statsCard').title='ดึงยอดไม่ได้: '+e.message; }
 }
+
+// ── ยอดแยกห้อง/สาขา (กดที่ป้ายมุมขวาบน) ─────────────────
+let detailData=null, detailKey='byRoom';
+function localDetail(){
+  const room={};
+  for(const s of Object.values(byId)){
+    const k=s.room||'(ไม่ระบุ)'; room[k]=room[k]||{name:k,total:0,registered:0};
+    room[k].total++; if(localReg[s.id.toUpperCase()]) room[k].registered++;
+  }
+  const st=localStats();
+  return {...st,byRoom:Object.values(room).sort((a,b)=>a.name.localeCompare(b.name,'th')),byMajor:[{name:'(ไม่ระบุ)',...st}]};
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function renderDetail(){
+  const body=document.getElementById('sdBody');
+  if(!detailData){return;}
+  const list=detailData[detailKey]||[];
+  if(!list.length){body.innerHTML='<div class="sd-empty">ยังไม่มีข้อมูล</div>';return;}
+  body.innerHTML='<table class="sd-table"><thead><tr><th>'+(detailKey==='byRoom'?'ห้อง / กลุ่ม':'สาขา')+'</th><th>ลงทะเบียนแล้ว</th><th class="r">ทั้งหมด</th></tr></thead><tbody>'+
+    list.map(r=>{const pct=r.total?Math.round(r.registered*100/r.total):0;
+      return `<tr><td class="nm">${esc(r.name)}</td><td><div class="sd-cell"><span class="sd-bar"><span style="width:${pct}%"></span></span><span class="sd-n"><b>${r.registered.toLocaleString('th-TH')}</b> <small>${pct}%</small></span></div></td><td class="r">${r.total.toLocaleString('th-TH')}</td></tr>`;}).join('')+
+    '</tbody></table>';
+}
+async function loadDetail(){
+  const sum=document.getElementById('sdSum');
+  sum.textContent='กำลังโหลด…';
+  try{
+    detailData=API_URL?await api({action:'stats',detail:'1'}):localDetail();
+    if(!detailData||!detailData.byRoom) throw new Error('Apps Script ยังเป็นเวอร์ชันเก่า (อัปเดต Code.gs แล้วทำให้ใช้งานได้เป็นเวอร์ชันใหม่)');
+    renderStats(detailData);
+    const t=detailData.total,r=detailData.registered;
+    sum.textContent=`ต้องลงทะเบียน ${t.toLocaleString('th-TH')} คน · ลงทะเบียนแล้ว ${r.toLocaleString('th-TH')} คน · ยังไม่มา ${(t-r).toLocaleString('th-TH')} คน`;
+    const d=new Date();document.getElementById('sdTime').textContent=`อัปเดต ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} น.`;
+    renderDetail();
+  }catch(e){ sum.textContent='โหลดไม่ได้: '+e.message; document.getElementById('sdBody').innerHTML=''; }
+}
+function openStats(){
+  const dlg=document.getElementById('statsDlg');
+  if(typeof dlg.showModal==='function') dlg.showModal(); else dlg.setAttribute('open','');
+  loadDetail();
+}
+function closeStats(){const dlg=document.getElementById('statsDlg');if(dlg.close)dlg.close();else dlg.removeAttribute('open');}
+document.getElementById('statsDlg').addEventListener('click',e=>{ if(e.target.id==='statsDlg') closeStats(); });
+document.querySelectorAll('.sd-tab').forEach(b=>b.addEventListener('click',()=>{
+  detailKey=b.dataset.k;
+  document.querySelectorAll('.sd-tab').forEach(x=>{x.classList.toggle('on',x===b);x.setAttribute('aria-selected',x===b);});
+  renderDetail();
+}));
 
 // ── ยืนยันลงทะเบียน ──────────────────────────────────
 function fmtTime(s){
