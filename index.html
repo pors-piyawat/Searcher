@@ -1033,7 +1033,7 @@ function renderSingle(zone){
 //  วาง URL ของ Web App (ลงท้ายด้วย /exec) ระหว่างเครื่องหมาย ' '
 //  ถ้าเว้นว่างไว้ ระบบจะใช้ข้อมูล DATA / GROUPS ในไฟล์นี้แทน
 // ══════════════════════════════════════════════════════
-const API_URL = 'https://script.google.com/macros/s/AKfycbz3hVT8XBFCsJb5TaB7D7LxQ-O_kVRIePr989Mh67pgaDhutUkBaR3Of0xlkZQ_eEAzPw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbyl5pOMFqu_fmKKrNiDxAJM2_PoSJP8rawBR_Y67PUQlbIuE0eYQn5zAAP3qdhHuMvK/exec';
 
 function showError(msg){
   const c=document.getElementById('errCard');
@@ -1401,13 +1401,21 @@ async function loadDatasets(){
 }
 
 // ── หน้าเลือกชุดข้อมูล (หลังเข้าสู่ระบบ) ─────────────────
-async function openChooser(){
+// แสดงหน้าเลือกชีตแบบกำลังโหลด (กันไม่ให้หน้าผังโผล่ขึ้นมาก่อน)
+function showChooserLoading(){
   document.body.classList.add('choosing');
+  document.getElementById('chSub').textContent='กำลังโหลด…';
+  const grid=document.getElementById('chGrid');
+  grid.innerHTML=Array.from({length:Math.max(DS_LIST.length,5)},()=>'<div class="ch-card skel"></div>').join('');
+}
+async function openChooser(skipLoad){
   const grid=document.getElementById('chGrid'), sub=document.getElementById('chSub');
-  sub.textContent='กำลังโหลด…';
-  if(!grid.children.length) grid.innerHTML=DS_LIST.map(()=>'<div class="ch-card skel"></div>').join('');
-  try{ await loadDatasets(); }
-  catch(e){ if(e.auth) return; sub.textContent='โหลดรายการไม่ได้: '+e.message; return; }
+  if(!skipLoad){
+    showChooserLoading();
+    try{ await loadDatasets(); }
+    catch(e){ if(e.auth) return; sub.textContent='โหลดรายการไม่ได้: '+e.message; return; }
+  }
+  document.body.classList.add('choosing');
   sub.textContent='แตะชื่อชีตเพื่อเริ่มค้นหาที่นั่ง';
   const last=recall(DS_STORE)||curDS;
   grid.innerHTML=DS_LIST.map((d,i)=>{
@@ -1480,11 +1488,13 @@ function logout(){ document.body.classList.remove('choosing','mode-map'); ROLE='
 // หลังเข้าสู่ระบบ: ไปหน้าเลือกชุดข้อมูลก่อน
 // (ถ้าลิงก์มี ?ds=s1 หรือรีเฟรชหน้าเดิมที่เลือกไว้แล้ว จะเข้าชุดนั้นเลย)
 async function unlock(fromLogin){
+  showChooserLoading();                       // ไปหน้าเลือกชีตทันที (ระหว่างรอโหลดรายการ)
   document.body.classList.remove('locked');
-  try{ await loadDatasets(); }catch(e){ if(e.auth) return; }
+  try{ await loadDatasets(); }
+  catch(e){ if(e.auth) return; document.getElementById('chSub').textContent='โหลดรายการไม่ได้: '+e.message; return; }
   const want=params.get('ds')||(fromLogin?null:recall(DS_STORE));
   if(want&&DS_LIST.some(d=>d.key===want&&d.ready!==false)) enterDS(want);
-  else openChooser();
+  else openChooser(true);
 }
 // ไม่ใช้การ submit ฟอร์ม (บางหน้าพรีวิว/iframe บล็อกการส่งฟอร์ม) — ใช้คลิกปุ่มและปุ่ม Enter แทน
 document.getElementById('loginForm').addEventListener('submit',e=>{e.preventDefault();doLogin();});
@@ -1511,7 +1521,9 @@ document.getElementById('pwEye').addEventListener('click',()=>{
 (async()=>{
   const saved=recall(KEY_STORE);
   if(saved){
+    document.body.classList.remove('locked'); showChooserLoading();
     try{ const role=await checkKey(saved); if(role){ AUTH_KEY=saved; setRole(role); unlock(); return; } }catch(e){}
+    document.body.classList.remove('choosing');
   }
   showLogin('');
 })();
