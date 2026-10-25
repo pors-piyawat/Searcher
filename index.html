@@ -1485,14 +1485,15 @@ function showLogin(msg){
   const pw=document.getElementById('pw'); pw.value=''; setTimeout(()=>pw.focus(),50);
 }
 function logout(){ document.body.classList.remove('choosing','mode-map'); ROLE='staff'; OCC=new Map(); store(ROLE_STORE,null); store(DS_STORE,null); showLogin(''); }
-// หลังเข้าสู่ระบบ: ไปหน้าเลือกชุดข้อมูลก่อน
-// (ถ้าลิงก์มี ?ds=s1 หรือรีเฟรชหน้าเดิมที่เลือกไว้แล้ว จะเข้าชุดนั้นเลย)
+// หลังเข้าสู่ระบบ: ไปหน้าเลือกชุดข้อมูลก่อนเสมอ
+// (ยกเว้นลิงก์ที่ระบุ ?ds=s1 มาโดยตรง จะเข้าชุดนั้นเลย)
 async function unlock(fromLogin){
   showChooserLoading();                       // ไปหน้าเลือกชีตทันที (ระหว่างรอโหลดรายการ)
   document.body.classList.remove('locked');
   try{ await loadDatasets(); }
   catch(e){ if(e.auth) return; document.getElementById('chSub').textContent='โหลดรายการไม่ได้: '+e.message; return; }
-  const want=params.get('ds')||(fromLogin?null:recall(DS_STORE));
+  // ไปหน้าเลือกชีตก่อนเสมอ (ไม่ใช้ชีตที่จำไว้ครั้งก่อน)
+  const want=params.get('ds');
   if(want&&DS_LIST.some(d=>d.key===want&&d.ready!==false)) enterDS(want);
   else openChooser(true);
 }
