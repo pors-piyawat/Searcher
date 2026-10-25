@@ -237,7 +237,7 @@ body{margin:0;background:var(--bg);color:var(--fg);font-family:'Sarabun',system-
 .sv-label{font:800 78px 'Sarabun',sans-serif;fill:var(--zone-label);stroke:var(--zone-halo);stroke-width:10px;stroke-linejoin:round;paint-order:stroke fill;text-anchor:middle;dominant-baseline:central;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.25));transition:fill .18s;}
 .sv-label.sm{font-size:50px;stroke-width:8px;}
 .sv-zone:hover .sv-label{fill:var(--primary-hi);}
-.sv-zone.found .sv-label{fill:var(--accent);}
+.sv-zone.found .sv-label{fill:var(--accent);opacity:.4;}
 .sv-block{fill:var(--surface);}
 .sv-stair-bg{fill:var(--surface);stroke:var(--fg);stroke-width:1.5;}
 .sv-stroke{stroke:var(--fg);stroke-width:1.5;}
@@ -377,6 +377,162 @@ body.locked > .hdr, body.locked > .gold-stripe, body.locked > .wrap{display:none
 .logout-btn{position:absolute;top:12px;left:max(14px,env(safe-area-inset-left,0px));padding:6px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
 .logout-btn:hover{background:rgba(255,255,255,.14);color:#fff;}
 @media(max-width:520px){.logout-btn{top:10px;}}
+
+/* ── เลือกชุดข้อมูล ── */
+.ds-bar{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;margin:-4px 0 16px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.ds-bar[hidden]{display:none;}
+.ds-lbl{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--muted);margin-right:4px;}
+.ds-btn{padding:7px 14px;border-radius:99px;border:1.5px solid var(--border);background:var(--surface-2);color:var(--fg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;}
+.ds-btn:hover{border-color:var(--primary-hi);}
+.ds-btn.on{background:var(--primary-mid);border-color:var(--primary-mid);color:#fff;}
+.ds-btn.off{opacity:.5;}
+.sd-tab[hidden]{display:none;}
+
+/* ── หน้าเลือกชุดข้อมูล ── */
+.chooser{display:none;}
+body.choosing .chooser{display:block;min-height:100vh;min-height:100dvh;background:linear-gradient(160deg,var(--primary) 0%,#0a2149 100%);padding:28px 16px 40px;}
+body.choosing > .hdr, body.choosing > .gold-stripe, body.choosing > .wrap{display:none;}
+.ch-wrap{max-width:520px;margin:0 auto;}
+.ch-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:28px;}
+.ch-brand{margin:0;color:#fff;font-size:28px;}
+.ch-brand .brand-mark rect{fill:rgba(255,255,255,.28);}
+.ch-brand .brand-mark rect.hl{fill:var(--accent-warm);}
+.ch-brand .brand-word span{color:var(--accent-warm);}
+.ch-logout{padding:7px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:rgba(255,255,255,.8);font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.ch-logout:hover{background:rgba(255,255,255,.14);color:#fff;}
+.ch-title{margin:0;color:#fff;font-size:clamp(24px,6vw,32px);font-weight:800;}
+.ch-sub{margin:0 0 16px;color:rgba(255,255,255,.65);font-size:15px;}
+.ch-grid{display:flex;flex-direction:column;gap:12px;}
+.ch-card{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:18px 22px;border-radius:16px;border:2px solid transparent;background:var(--surface);color:var(--fg);text-align:left;font-family:'Sarabun',sans-serif;cursor:pointer;box-shadow:0 10px 28px rgba(0,0,0,.22);transition:transform .15s,border-color .15s,box-shadow .15s;}
+.ch-card:hover:not(:disabled){transform:translateY(-2px);border-color:var(--accent);box-shadow:0 16px 34px rgba(0,0,0,.28);}
+.ch-card:focus-visible{outline:3px solid var(--accent-warm);outline-offset:2px;}
+.ch-card.cur{border-color:var(--accent);}
+.ch-card.off{opacity:.55;cursor:not-allowed;}
+.ch-card.skel{height:66px;cursor:default;background:rgba(255,255,255,.12);box-shadow:none;animation:skel 1.2s ease-in-out infinite;}
+@keyframes skel{50%{opacity:.5}}
+.ch-name{font-size:22px;font-weight:800;line-height:1.2;}
+.ch-n{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.ch-n b{color:var(--accent);font-size:15px;}
+.ch-bar{display:block;width:100%;height:6px;margin-top:auto;border-radius:99px;background:var(--surface-2);overflow:hidden;}
+.ch-bar span{display:block;height:100%;border-radius:99px;background:var(--accent);}
+.ch-go{font-size:26px;line-height:1;color:var(--muted);transition:transform .15s,color .15s;}
+.ch-card:hover:not(:disabled) .ch-go{color:var(--accent);transform:translateX(3px);}
+.ch-warn{font-size:13px;color:var(--err-fg);font-weight:600;}
+@media(prefers-reduced-motion:reduce){.ch-card{transition:none;}.ch-card.skel{animation:none;}}
+
+/* ── ชื่อชุดข้อมูลในหัวเว็บ ── */
+.ds-pill{margin-top:10px;padding:5px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:background .18s;}
+.ds-pill:hover{background:rgba(255,255,255,.16);}
+.ds-pill-sw{font-weight:500;color:var(--accent-warm);margin-left:4px;font-size:13px;}
+
+/* ══ หน้าเลือกชีต — ดีไซน์ใหม่ ══ */
+body.choosing .chooser,body.locked .login{position:relative;overflow:hidden;isolation:isolate;
+  background:
+    radial-gradient(circle at 1px 1px,rgba(255,255,255,.07) 1px,transparent 0) 0 0/22px 22px,
+    linear-gradient(160deg,#0f3170 0%,#0a2149 55%,#071833 100%);}
+body.choosing .chooser::before,body.choosing .chooser::after,body.locked .login::before,body.locked .login::after{
+  content:"";position:absolute;z-index:-1;border-radius:50%;filter:blur(70px);pointer-events:none;}
+body.choosing .chooser::before,body.locked .login::before{width:420px;height:420px;top:-140px;right:-120px;background:rgba(20,184,166,.35);}
+body.choosing .chooser::after,body.locked .login::after{width:380px;height:380px;bottom:-160px;left:-120px;background:rgba(42,98,204,.45);}
+body.choosing .chooser{display:flex;align-items:center;justify-content:center;padding:32px 16px 48px;}
+.ch-wrap{width:100%;max-width:480px;margin:0 auto;}
+.ch-top{margin-bottom:34px;}
+.ch-hero{text-align:center;margin-bottom:22px;animation:chUp .5s ease both;}
+.ch-kicker{display:inline-block;padding:4px 12px;border-radius:99px;background:rgba(20,184,166,.16);border:1px solid rgba(94,234,212,.35);color:#7cf0dc;font-size:12px;font-weight:700;letter-spacing:.08em;margin-bottom:12px;}
+.ch-head{margin:0;color:#fff;font-size:clamp(24px,6.4vw,30px);font-weight:800;line-height:1.25;}
+.ch-sub{margin:6px 0 0;color:rgba(255,255,255,.62);font-size:15px;}
+.ch-panel{padding:10px;border-radius:24px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);box-shadow:0 30px 70px rgba(0,0,0,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);}
+.ch-grid{display:flex;flex-direction:column;gap:8px;}
+.ch-card{position:relative;display:flex;flex-direction:row;align-items:center;gap:14px;width:100%;min-height:72px;padding:12px 14px 12px 12px;border-radius:16px;border:1.5px solid transparent;background:var(--surface);color:var(--fg);text-align:left;font-family:'Sarabun',sans-serif;cursor:pointer;box-shadow:0 2px 0 rgba(0,0,0,.04);transition:transform .18s ease,border-color .18s,box-shadow .18s,background .18s;animation:chUp .45s ease both;animation-delay:calc(var(--i,0)*60ms + 80ms);}
+.ch-card:hover:not(:disabled){transform:translateY(-2px);border-color:var(--accent-warm);box-shadow:0 12px 26px rgba(0,0,0,.25);}
+.ch-card:active:not(:disabled){transform:translateY(0) scale(.99);}
+.ch-card:focus-visible{outline:3px solid var(--accent-warm);outline-offset:3px;}
+.ch-card.cur{border-color:var(--accent);box-shadow:0 0 0 3px rgba(20,184,166,.25);}
+.ch-card.off{opacity:.55;cursor:not-allowed;filter:grayscale(.6);}
+.ch-card.skel{height:72px;min-height:72px;background:rgba(255,255,255,.1);box-shadow:none;border:none;animation:skel 1.2s ease-in-out infinite;}
+.ch-num{flex-shrink:0;display:grid;place-items:center;width:46px;height:46px;border-radius:13px;background:linear-gradient(145deg,#14b8a6,#0d9488 55%,#0b766d);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;box-shadow:inset 0 -3px 0 rgba(0,0,0,.15),0 6px 14px rgba(13,148,136,.35);}
+.ch-card:nth-child(5n+2) .ch-num{background:linear-gradient(145deg,#3d8bff,#2a62cc 55%,#1d4ea8);box-shadow:inset 0 -3px 0 rgba(0,0,0,.15),0 6px 14px rgba(42,98,204,.35);}
+.ch-card:nth-child(5n+3) .ch-num{background:linear-gradient(145deg,#8b7cf6,#6d5ae6 55%,#5643c9);box-shadow:inset 0 -3px 0 rgba(0,0,0,.15),0 6px 14px rgba(109,90,230,.35);}
+.ch-card:nth-child(5n+4) .ch-num{background:linear-gradient(145deg,#f59e6b,#e8762a 55%,#c95f17);box-shadow:inset 0 -3px 0 rgba(0,0,0,.15),0 6px 14px rgba(232,118,42,.35);}
+.ch-card:nth-child(5n+5) .ch-num{background:linear-gradient(145deg,#f472b6,#db4b93 55%,#b83578);box-shadow:inset 0 -3px 0 rgba(0,0,0,.15),0 6px 14px rgba(219,75,147,.35);}
+.ch-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.ch-name{font-size:19px;font-weight:700;line-height:1.25;}
+.ch-tag{align-self:flex-start;font-size:11px;font-weight:700;color:var(--accent);background:rgba(13,148,136,.12);padding:1px 8px;border-radius:99px;}
+.ch-warn{font-size:12px;font-weight:600;color:var(--err-fg);}
+.ch-go{flex-shrink:0;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--surface-2);transition:background .18s,transform .18s;}
+.ch-go svg{width:18px;height:18px;fill:none;stroke:var(--muted);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:stroke .18s;}
+.ch-card:hover:not(:disabled) .ch-go{background:var(--accent);transform:translateX(2px);}
+.ch-card:hover:not(:disabled) .ch-go svg{stroke:#fff;}
+@keyframes chUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.ch-card,.ch-hero{animation:none;}}
+@media(max-width:420px){.ch-panel{padding:8px;border-radius:20px;}.ch-card{min-height:66px;}.ch-num{width:42px;height:42px;font-size:18px;}}
+
+/* ── ปุ่มชีตใหญ่ขึ้น ── */
+.ch-wrap{max-width:640px;}
+.ch-top{margin-bottom:26px;}
+.ch-hero{margin-bottom:20px;}
+.ch-head{font-size:clamp(26px,6.6vw,36px);}
+.ch-sub{font-size:16px;}
+.ch-panel{padding:12px;}
+.ch-grid{gap:10px;}
+.ch-card{min-height:96px;padding:16px 20px 16px 16px;gap:18px;border-radius:18px;}
+.ch-card.skel{height:96px;min-height:96px;}
+.ch-num{width:62px;height:62px;border-radius:16px;font-size:27px;}
+.ch-name{font-size:24px;}
+.ch-tag{font-size:12px;padding:2px 10px;}
+.ch-go{width:42px;height:42px;}
+.ch-go svg{width:22px;height:22px;}
+@media(max-width:520px){
+  body.choosing .chooser{padding:24px 12px 32px;}
+  .ch-panel{padding:8px;border-radius:20px;}
+  .ch-card{min-height:84px;padding:14px 14px 14px 12px;gap:14px;}
+  .ch-num{width:54px;height:54px;font-size:23px;}
+  .ch-name{font-size:21px;}
+}
+.ch-card{padding-left:24px;}
+@media(max-width:520px){.ch-card{padding-left:20px;}}
+.ch-sub{margin:0;font-size:16px;color:rgba(255,255,255,.72);}
+.ch-hero{margin-bottom:16px;}
+
+/* ── โหมดดูผัง (engsutt) ── */
+body.mode-map .search-card, body.mode-map #infoStrip, body.mode-map #errCard, body.mode-map .hdr-stats{display:none !important;}
+.mode-tag{display:none;}
+body.mode-map .mode-tag{display:block;position:absolute;top:12px;right:max(14px,env(safe-area-inset-right,0px));padding:6px 12px;border-radius:9px;background:rgba(61,106,170,.35);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:700;}
+@media(max-width:520px){body.mode-map .mode-tag{top:10px;}body.mode-map .hdr{padding-top:58px;}}
+.occ-bar{display:flex;justify-content:center;align-items:center;gap:8px 18px;flex-wrap:wrap;margin-top:12px;font-size:14px;color:var(--fg);}
+.occ-item{display:inline-flex;align-items:center;gap:6px;}
+.occ-item b{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+.occ-item.muted{color:var(--muted);font-size:13px;}
+.occ-pip{display:inline-block;width:14px;height:14px;border-radius:3px;background:var(--seat-empty);border:1px solid var(--seat-stroke);}
+.occ-pip.taken{background:var(--seat-taken);border-color:var(--seat-taken);}
+body.mode-map .sv-seat.s-taken{fill:var(--seat-taken);stroke:var(--seat-taken);}
+
+/* ── สีตามห้อง (โหมดดูผัง) ── */
+.room-legend{display:flex;justify-content:center;align-items:center;gap:6px 8px;flex-wrap:wrap;margin-top:12px;}
+.rl-lbl{font-size:12px;font-weight:700;color:var(--muted);margin-right:2px;}
+.room-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border);font-size:13px;font-weight:600;color:var(--fg);}
+.room-chip i{display:inline-block;width:12px;height:12px;border-radius:3px;}
+.room-chip b{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--muted);font-size:12px;}
+
+/* ── ข้อมูลรายที่นั่ง ── */
+body.mode-map .sv-seat, body.mode-map .seat{cursor:pointer;}
+body.mode-map .sv-seat:hover{stroke:var(--fg);stroke-width:2;}
+body.mode-map .seat:hover{outline:2px solid var(--fg);outline-offset:1px;}
+.seat-dlg{width:min(480px,calc(100vw - 24px));}
+.seat-body{padding:6px 20px 20px;display:flex;flex-direction:column;gap:10px;}
+.seat-note{font-size:13px;color:var(--muted);background:var(--surface-2);border-radius:10px;padding:8px 12px;}
+.seat-free{display:flex;align-items:center;gap:10px;padding:18px 4px;font-size:15px;font-weight:600;color:var(--muted);}
+.sf-dot{width:16px;height:16px;border-radius:4px;background:var(--seat-empty);border:1px solid var(--seat-stroke);}
+.p-card{border:1px solid var(--border);border-radius:14px;padding:14px 16px;background:var(--surface);}
+.pc-name{font-size:19px;font-weight:700;line-height:1.3;margin-bottom:8px;}
+.pc-grid{display:grid;grid-template-columns:1fr;gap:4px;}
+.pc-row{display:grid;grid-template-columns:120px 1fr;gap:8px;font-size:14px;align-items:baseline;}
+.pc-row span{color:var(--muted);font-size:12px;font-weight:600;}
+.pc-row b{font-weight:600;word-break:break-word;display:inline-flex;align-items:center;gap:6px;}
+.pc-dot{display:inline-block;width:10px;height:10px;border-radius:3px;}
+.pc-reg{margin-top:10px;font-size:13px;font-weight:700;color:var(--muted);}
+.pc-reg.ok{color:var(--accent);}
+@media(max-width:420px){.pc-row{grid-template-columns:96px 1fr;}}
 </style>
 </head>
 <body class="locked">
@@ -392,12 +548,31 @@ body.locked > .hdr, body.locked > .gold-stripe, body.locked > .wrap{display:none
     </div>
     <label class="login-lbl" for="pw">รหัสผ่าน</label>
     <div class="login-row">
-      <input class="login-inp" id="pw" type="password" autocomplete="current-password" placeholder="••••••" required>
+      <input class="login-inp" id="pw" type="password" autocomplete="current-password" placeholder="••••••">
       <button type="button" class="pw-eye" id="pwEye" aria-label="แสดงรหัสผ่าน">👁</button>
     </div>
-    <button class="login-btn" id="loginBtn" type="submit">เข้าสู่ระบบ</button>
+    <button class="login-btn" id="loginBtn" type="button">เข้าสู่ระบบ</button>
     <div class="login-err" id="loginErr" role="alert"></div>
   </form>
+</div>
+<div class="chooser" id="chooser">
+  <div class="ch-wrap">
+    <div class="ch-top">
+      <div class="login-brand ch-brand">
+        <svg class="brand-mark" viewBox="2 4 36 34" aria-hidden="true">
+          <rect x="4" y="6" width="9" height="8" rx="2"/><rect x="15.5" y="6" width="9" height="8" rx="2"/><rect x="27" y="6" width="9" height="8" rx="2"/>
+          <rect x="4" y="17" width="9" height="8" rx="2"/><rect class="hl" x="15.5" y="17" width="9" height="8" rx="2"/><rect x="27" y="17" width="9" height="8" rx="2"/>
+          <rect x="4" y="28" width="9" height="8" rx="2"/><rect x="15.5" y="28" width="9" height="8" rx="2"/><rect x="27" y="28" width="9" height="8" rx="2"/>
+        </svg>
+        <span class="brand-word">Search<span>er</span></span>
+      </div>
+      <button type="button" class="ch-logout" onclick="logout()">⎋ ออกจากระบบ</button>
+    </div>
+    <div class="ch-hero">
+      <p class="ch-sub" id="chSub">แตะชื่อชีตเพื่อเริ่มค้นหาที่นั่ง</p>
+    </div>
+    <div class="ch-panel"><div class="ch-grid" id="chGrid"></div></div>
+  </div>
 </div>
 <header class="hdr">
   <button type="button" class="hdr-stats" id="statsCard" aria-live="polite" title="" onclick="openStats()" aria-haspopup="dialog">
@@ -406,6 +581,7 @@ body.locked > .hdr, body.locked > .gold-stripe, body.locked > .wrap{display:none
     <span class="hs-more">ดูยอดแยกกลุ่ม ›</span>
   </button>
   <button type="button" class="logout-btn" onclick="logout()" title="ออกจากระบบ">⎋ ออกจากระบบ</button>
+  <div class="mode-tag" aria-hidden="true">โหมดดูผังที่นั่ง</div>
   <h1 class="brand">
     <svg class="brand-mark" viewBox="2 4 36 34" aria-hidden="true">
       <rect x="4" y="6" width="9" height="8" rx="2"/><rect x="15.5" y="6" width="9" height="8" rx="2"/><rect x="27" y="6" width="9" height="8" rx="2"/>
@@ -414,13 +590,15 @@ body.locked > .hdr, body.locked > .gold-stripe, body.locked > .wrap{display:none
     </svg>
     <span class="brand-word">Search<span>er</span></span>
   </h1>
+  <div><button type="button" class="ds-pill" id="dsPill" onclick="openChooser()" title="เปลี่ยนชุดข้อมูล"><span id="dsPillName">—</span> <span class="ds-pill-sw">⇄ เปลี่ยน</span></button></div>
 </header>
 <div class="gold-stripe"></div>
 
 <div class="wrap">
 
   <div class="search-card">
-    <div class="s-lbl">ค้นหาด้วยรหัสนักศึกษา</div>
+    <div class="ds-bar" id="dsBar" hidden></div>
+    <div class="s-lbl" id="sLbl">ค้นหาด้วยรหัสนักศึกษา</div>
     <div class="s-row">
       <input class="s-inp" id="sid" type="text" placeholder="B0000000"
              maxlength="10" autocomplete="off" autocorrect="off"
@@ -438,24 +616,24 @@ body.locked > .hdr, body.locked > .gold-stripe, body.locked > .wrap{display:none
     <div class="info-hdr">ข้อมูลที่นั่งสอบ</div>
     <div class="sess-switch" id="sessSwitch" hidden></div>
     <div class="name-row">
-      <div class="nr-lbl">ชื่อ-นามสกุล</div>
+      <div class="nr-lbl" id="lblName">ชื่อ-นามสกุล</div>
       <div class="nr-name" id="rName">—</div>
     </div>
     <div class="info-grid">
       <div class="info-cell">
-        <div class="i-lbl">รหัสนักศึกษา</div>
+        <div class="i-lbl" id="rIdLbl">รหัสนักศึกษา</div>
         <div class="i-val" id="rId">—</div>
       </div>
       <div class="info-cell">
-        <div class="i-lbl">หลักสูตร</div>
+        <div class="i-lbl" id="lblProgram">หลักสูตร</div>
         <div class="i-val iv-prog" id="rProgram">—</div>
       </div>
       <div class="info-cell">
-        <div class="i-lbl">สาขา</div>
+        <div class="i-lbl" id="lblMajor">สาขา</div>
         <div class="i-val iv-adv" id="rMajor">—</div>
       </div>
       <div class="info-cell">
-        <div class="i-lbl">อาจารย์ที่ปรึกษา</div>
+        <div class="i-lbl" id="lblAdvisor">อาจารย์ที่ปรึกษา</div>
         <div class="i-val iv-adv" id="rAdvisor">—</div>
       </div>
       <div class="info-cell">
@@ -463,7 +641,7 @@ body.locked > .hdr, body.locked > .gold-stripe, body.locked > .wrap{display:none
         <div class="i-val iv-sess" id="rSession">—</div>
       </div>
       <div class="info-cell">
-        <div class="i-lbl">ห้อง / กลุ่ม</div>
+        <div class="i-lbl" id="lblRoom">ห้อง / กลุ่ม</div>
         <div class="i-val iv-room" id="rRoom">—</div>
       </div>
       <div class="info-cell">
@@ -472,7 +650,7 @@ body.locked > .hdr, body.locked > .gold-stripe, body.locked > .wrap{display:none
         <div class="i-sub" id="rZoneSub">—</div>
       </div>
       <div class="info-cell">
-        <div class="i-lbl">ที่นั่ง / พื้นที่</div>
+        <div class="i-lbl" id="lblSeat">ที่นั่ง / พื้นที่</div>
         <div class="i-val iv-seat" id="rSeat">—</div>
         <div class="i-sub" id="rDesc">—</div>
       </div>
@@ -524,6 +702,16 @@ body.locked > .hdr, body.locked > .gold-stripe, body.locked > .wrap{display:none
   </div>
 </dialog>
 
+<dialog class="st-dlg seat-dlg" id="seatDlg" aria-labelledby="seatDlgTitle">
+  <div class="sd-head">
+    <div>
+      <div class="sd-title" id="seatDlgTitle">ที่นั่ง</div>
+      <div class="sd-sum" id="seatDlgSub"></div>
+    </div>
+    <button type="button" class="sd-x" onclick="closeSeat()" aria-label="ปิด">✕</button>
+  </div>
+  <div class="sd-body seat-body" id="seatDlgBody"></div>
+</dialog>
 <script>
 // ══════════════════════════════════════════════════════
 //  VENUE DATA — จำนวนที่นั่งต่อแถว แต่ละโซน
@@ -586,12 +774,20 @@ const DATA = [
 ];
 
 // ── Lookups ──────────────────────────────────────────
-const byId={}, bySeat={};
-for(const [id,room,s0,advisor,major,session,name,program] of DATA){
-  const seat=(s0||GROUPS[room]||'').toUpperCase();
-  byId[id.toUpperCase()]={id,room,seat,advisor:advisor||'',major:major||'',session:session||'',name:name||'',program:program||''};
-  bySeat[room+':'+seat]=id;
+// โหมดไม่มี API: ชุดข้อมูลในไฟล์ (ไฟล์ทดลองเพิ่ม s1–s3 ได้ที่ LOCAL_SETS)
+const LOCAL_SETS = (typeof DEMO_SETS!=='undefined') ? DEMO_SETS : { main: DATA };
+const LOCAL_DS = (typeof DEMO_DS!=='undefined') ? DEMO_DS : [{key:'main',label:'ข้อมูลในไฟล์',idLabel:'รหัสนักศึกษา',idType:'',ready:true,tabs:1}];
+function normId(s){return String(s||'').replace(/[\s-]/g,'').toUpperCase();}
+const byIdSets={}, bySeat={};
+for(const [k,rows] of Object.entries(LOCAL_SETS)){
+  const m={};
+  for(const [id,room,s0,advisor,major,session,name,program] of rows){
+    const seat=(s0||GROUPS[room]||'').toUpperCase();
+    m[normId(id)]={id,room,seat,advisor:advisor||'',major:major||'',session:session||'',name:name||'',program:program||''};
+  }
+  byIdSets[k]=m;
 }
+function curById(){return byIdSets[curDS]||{};}
 
 // ── Helpers ──────────────────────────────────────────
 function endRow(z){const v=VENUE[z];return v?v.startRow+v.seatCounts.length-1:'?';}
@@ -666,12 +862,72 @@ function zoneBox(z){
 function seatState(code,room){
   if(foundEntry&&code===foundEntry.seat) return 's-you';
   const c=parseSeat(code); if(c&&inFoundRows(c.zone,c.row)) return 's-row';
+  if(isMapMode()&&OCC.has(code)) return 's-taken';
   return 's-empty';
+}
+
+// ══════════════════════════════════════════════════════
+//  โหมดดูผัง (รหัส engsutt): แสดงที่นั่งที่จัดคนไว้แล้วจากชีต
+// ══════════════════════════════════════════════════════
+let ROLE='staff', OCC=new Map(), OCC_INFO=null, ROOM_COLORS=new Map();
+// สีของแต่ละห้อง/กลุ่ม (ห้องเดียวกัน = สีเดียวกัน)
+const ROOM_PALETTE=['#2a62cc','#0d9488','#e8762a','#8b5cf6','#db2777','#65a30d','#0891b2','#ca8a04','#dc2626','#4f46e5','#059669','#c026d3','#0369a1','#b45309','#be123c','#4d7c0f'];
+function occColor(code){const r=OCC.get(code);return ROOM_COLORS.get(r)||'var(--seat-taken)';}
+function buildRoomColors(){
+  const rooms=[...new Set(OCC.values())].sort((a,b)=>String(a).localeCompare(String(b),'th',{numeric:true}));
+  ROOM_COLORS=new Map(); let i=0;
+  rooms.forEach(r=>{ ROOM_COLORS.set(r, r?ROOM_PALETTE[i++%ROOM_PALETTE.length]:'#7c8ca3'); });
+}
+const ROLE_STORE='searcher_role';
+function isMapMode(){return ROLE==='map';}
+function setRole(r){ROLE=r==='map'?'map':'staff'; store(ROLE_STORE,ROLE); document.body.classList.toggle('mode-map',ROLE==='map');}
+// แปลงรหัสที่นั่ง (A05-7 / A05 / D01-D06) → รายการที่นั่งทีละตัว
+function expandSeat(code){
+  const p=parseSeat(String(code||'').toUpperCase()); if(!p||!VENUE[p.zone]) return [];
+  const v=VENUE[p.zone], out=[], pad=r=>String(r).padStart(2,'0');
+  for(let r=p.row;r<=p.rowEnd;r++){
+    const i=r-v.startRow; if(i<0||i>=v.seatCounts.length) continue;
+    if(p.seat!=null){ if(p.seat>=1&&p.seat<=v.seatCounts[i]) out.push(`${p.zone}${pad(r)}-${p.seat}`); }
+    else for(let k=1;k<=v.seatCounts[i];k++) out.push(`${p.zone}${pad(r)}-${k}`);
+  }
+  return out;
+}
+function occInZone(z){let n=0;OCC.forEach((r,c)=>{if(c[0]===z)n++;});return n;}
+function allSeats(){return Object.keys(VENUE).reduce((a,z)=>a+totalSeats(z),0);}
+async function loadOccupancy(){
+  let seats={}, rooms={}, people=0, noSeat=0;
+  if(!API_URL){
+    for(const s of Object.values(curById())){people++; if(s.seat){seats[s.seat]=(seats[s.seat]||0)+1; if(!(s.seat in rooms)) rooms[s.seat]=s.room||'';} else noSeat++;}
+  }else{
+    const j=await api({action:'seats'});
+    seats=(j&&j.seats)||{}; rooms=(j&&j.rooms)||{}; people=(j&&j.people)||0; noSeat=(j&&j.noSeat)||0;
+  }
+  const map=new Map();
+  Object.keys(seats).forEach(code=>expandSeat(code).forEach(c=>{ if(!map.has(c)) map.set(c, rooms[code]||''); }));
+  OCC=map; OCC_INFO={people,noSeat}; buildRoomColors();
+  if(activeZone==='all') renderAll(); else renderSingle(activeZone);
 }
 
 // ══════════════════════════════════════════════════════
 //  RENDER: ALL ZONES — ผังรวมแบบเดียวกับรูปผังจริง (SVG)
 // ══════════════════════════════════════════════════════
+function occHint(){
+  const tot=allSeats(), used=OCC.size, info=OCC_INFO;
+  const per=new Map(); OCC.forEach(r=>per.set(r,(per.get(r)||0)+1));
+  const chips=[...ROOM_COLORS.entries()].map(([r,col])=>
+    `<span class="room-chip"><i style="background:${col}"></i>${esc(r||'ไม่ระบุห้อง')} <b>${(per.get(r)||0).toLocaleString('th-TH')}</b></span>`).join('');
+  return `${chips?`<div class="room-legend"><span class="rl-lbl">${esc(L('room'))}</span>${chips}</div>`:''}<div class="occ-bar">
+    <span class="occ-item">จัดที่นั่งแล้ว <b>${used.toLocaleString('th-TH')}</b> ที่</span>
+    <span class="occ-item"><i class="occ-pip"></i>ว่าง <b>${(tot-used).toLocaleString('th-TH')}</b> ที่</span>
+    <span class="occ-item muted">จากทั้งหมด ${tot.toLocaleString('th-TH')} ที่${info&&info.noSeat?` · ยังไม่ระบุที่นั่ง ${info.noSeat.toLocaleString('th-TH')} คน`:''}</span>
+  </div><div class="map-hint">แตะที่โซนเพื่อดูที่นั่งแบบละเอียด</div>`;
+}
+function zoneRoomLegend(z){
+  const per=new Map(); OCC.forEach((r,c)=>{ if(c[0]===z) per.set(r,(per.get(r)||0)+1); });
+  if(!per.size) return '<div class="leg-item">ยังไม่มีการจัดที่นั่งในโซนนี้</div>';
+  return [...per.entries()].sort((a,b)=>String(a[0]).localeCompare(String(b[0]),'th',{numeric:true}))
+    .map(([r,n])=>`<div class="leg-item"><div class="leg-pip" style="background:${ROOM_COLORS.get(r)||'var(--seat-taken)'}"></div>${esc(r||'ไม่ระบุห้อง')} (${n})</div>`).join('');
+}
 function renderAll(){
   const room=foundEntry?.room||null;
   const fz=foundEntry?parseSeat(foundEntry.seat)?.zone:null;
@@ -692,7 +948,7 @@ function renderAll(){
   let ring='';
   for(const Z of 'ABCDEFGHI'){
     const v=VENUE[Z], b=zoneBox(Z);
-    s+=`<g class="sv-zone${Z===fz?' found':''}" onclick="selectZone('${Z}')"><title>โซน ${Z} · ${v.floor} · ${totalSeats(Z)} ที่นั่ง</title>`;
+    s+=`<g class="sv-zone${Z===fz?' found':''}" onclick="selectZone('${Z}')"><title>โซน ${Z} · ${v.floor} · ${isMapMode()?`จัดแล้ว ${occInZone(Z)}/${totalSeats(Z)} ที่นั่ง`:totalSeats(Z)+' ที่นั่ง'}</title>`;
     s+=`<rect class="sv-hit" x="${b.x0-8}" y="${b.y0-SEAT_H/2-8}" width="${b.x1-b.x0+16}" height="${b.y1-b.y0+SEAT_H+16}" rx="10"/>`;
     v.seatCounts.forEach((n,i)=>{
       const x0=rowX0(Z,i), y=rowY(Z,i);
@@ -702,7 +958,8 @@ function renderAll(){
       for(let k=1;k<=n;k++){
         const code=`${Z}${rowPad}-${k}`, st=seatState(code,room);
         const x=x0+(k-1)*P;
-        s+=`<rect class="sv-seat ${st}" x="${x.toFixed(1)}" y="${(y-SEAT_H/2).toFixed(1)}" width="${SEAT_W}" height="${SEAT_H}" rx="2"><title>${code}</title></rect>`;
+        const oc=(isMapMode()&&st==='s-taken')?occColor(code):'';
+        s+=`<rect class="sv-seat ${st}" data-seat="${code}" x="${x.toFixed(1)}" y="${(y-SEAT_H/2).toFixed(1)}" width="${SEAT_W}" height="${SEAT_H}" rx="2"${oc?` style="fill:${oc};stroke:${oc}"`:''}><title>${code}${oc?' · '+esc(OCC.get(code)||'ไม่ระบุห้อง'):''}</title></rect>`;
         if(st==='s-you') ring=`<circle class="sv-ring" cx="${(x+SEAT_W/2).toFixed(1)}" cy="${y.toFixed(1)}" r="16"/>`;
       }
     });
@@ -716,7 +973,7 @@ function renderAll(){
 
   document.getElementById('mapBody').innerHTML=
     s+
-    (fz?`<div class="map-hint found">ที่นั่งของคุณอยู่ <b>โซน ${fz}</b> · <button class="hint-btn" onclick="selectZone('${fz}')">ดูโซน ${fz} แบบละเอียด →</button></div>`:`<div class="map-hint">แตะที่โซนเพื่อดูที่นั่งแบบละเอียด</div>`);
+    (isMapMode()?occHint():fz?`<div class="map-hint found">ที่นั่งของคุณอยู่ <b>โซน ${fz}</b> · <button class="hint-btn" onclick="selectZone('${fz}')">ดูโซน ${fz} แบบละเอียด →</button></div>`:`<div class="map-hint">แตะที่โซนเพื่อดูที่นั่งแบบละเอียด</div>`);
 }
 
 // ══════════════════════════════════════════════════════
@@ -731,11 +988,11 @@ function renderSingle(zone){
   let html=`
     <div class="zone-detail-header">
       <div class="zone-badge">โซน ${zone}</div>
-      <div class="zone-info-text">${v.floor} · แถว ${v.startRow}–${endRow(zone)} · ${totalSeats(zone)} ที่นั่ง</div>
+      <div class="zone-info-text">${v.floor} · แถว ${v.startRow}–${endRow(zone)} · ${isMapMode()?`จัดแล้ว ${occInZone(zone)}/${totalSeats(zone)} ที่นั่ง`:totalSeats(zone)+' ที่นั่ง'}</div>
       <button class="back-btn" onclick="selectZone('all')">← ผังรวม</button>
     </div>
     <div class="legend">
-      <div class="leg-item"><div class="leg-pip lp-you"></div>${rowOnly()?'พื้นที่ของคุณ (นั่งที่ไหนในแถวที่ไฮไลต์ก็ได้)':'ที่นั่งของคุณ'}</div>
+      ${isMapMode()?zoneRoomLegend(zone):`<div class="leg-item"><div class="leg-pip lp-you"></div>${rowOnly()?'พื้นที่ของคุณ (นั่งที่ไหนในแถวที่ไฮไลต์ก็ได้)':'ที่นั่งของคุณ'}</div>`}
       <div class="leg-item"><div class="leg-pip lp-empty"></div>ว่าง</div>
     </div>
     <div class="zone-inner">
@@ -751,8 +1008,9 @@ function renderSingle(zone){
     for(let k=1;k<=n;k++){
       const code=`${zone}${rowPad}-${k}`, st=seatState(code,room);
       const lbl=st==='s-you'?'★':k;
-      const who=st==='s-taken'?' — '+bySeat[room+':'+code]:'';
-      html+=`<div class="seat ${st}" title="${code}${who}">${lbl}</div>`;
+      const who=(st==='s-taken'&&bySeat[room+':'+code])?' — '+bySeat[room+':'+code]:(st==='s-taken'?' — จัดคนนั่งแล้ว':'');
+      const oc=(isMapMode()&&st==='s-taken')?occColor(code):'';
+      html+=`<div class="seat ${st}" data-seat="${code}" title="${code}${oc?' — '+esc(OCC.get(code)||'ไม่ระบุห้อง'):who}"${oc?` style="background:${oc};color:#fff"`:''}>${lbl}</div>`;
     }
     html+=`</div></div>`;
   }
@@ -775,7 +1033,7 @@ function renderSingle(zone){
 //  วาง URL ของ Web App (ลงท้ายด้วย /exec) ระหว่างเครื่องหมาย ' '
 //  ถ้าเว้นว่างไว้ ระบบจะใช้ข้อมูล DATA / GROUPS ในไฟล์นี้แทน
 // ══════════════════════════════════════════════════════
-const API_URL = 'https://script.google.com/macros/s/AKfycbzeA-h_5ycM0NEUfpZb4UNmHUu9YFzwFc4Mrs8_uwNLuONq_MmzOeOSffI10i1zhe3wzQ/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbz3hVT8XBFCsJb5TaB7D7LxQ-O_kVRIePr989Mh67pgaDhutUkBaR3Of0xlkZQ_eEAzPw/exec';
 
 function showError(msg){
   const c=document.getElementById('errCard');
@@ -799,7 +1057,7 @@ function jsonp(url){
 
 // เรียก Web App: ลอง fetch ก่อน ไม่ได้ค่อยใช้ JSONP
 async function api(params){
-  const url=API_URL+'?'+new URLSearchParams({...params,key:AUTH_KEY||''}).toString();
+  const url=API_URL+'?'+new URLSearchParams({...params,key:AUTH_KEY||'',ds:curDS}).toString();
   let j, firstErr;
   try{
     const r=await fetch(url,{redirect:'follow'});
@@ -818,7 +1076,8 @@ async function api(params){
 
 // โหมดไม่มี API: เก็บสถานะลงทะเบียนไว้ในหน่วยความจำ (ใช้ทดสอบเท่านั้น)
 const localReg={};
-function localStats(){return{total:Object.keys(byId).length,registered:Object.keys(localReg).length};}
+function regKey(id){return curDS+':'+normId(id);}
+function localStats(){const ids=Object.keys(curById());return{total:ids.length,registered:ids.filter(i=>localReg[curDS+':'+i]).length};}
 
 function normEntry(m){
   return {id:m.id,name:m.name||'',program:m.program||'',room:m.room||'',seat:String(m.seat||'').toUpperCase(),advisor:m.advisor||'',
@@ -831,7 +1090,7 @@ function toEntries(j){
 }
 
 async function lookup(q){
-  if(!API_URL){const s=byId[q];return s?[{...s,registeredAt:localReg[q]||''}]:[];}
+  if(!API_URL){const s=curById()[q];return s?[{...s,registeredAt:localReg[regKey(q)]||''}]:[];}
   return toEntries(await api({id:q}));
 }
 
@@ -849,6 +1108,7 @@ function renderStats(st){
   document.getElementById('statsCard').classList.add('ready');
 }
 async function loadStats(){
+  if(isMapMode()){ try{ await loadOccupancy(); }catch(e){ console.warn('seats',e); } return; }
   if(!API_URL){renderStats(localStats());return;}
   try{
     const j=await api({action:'stats'});
@@ -861,12 +1121,12 @@ async function loadStats(){
 let detailData=null, detailKey='bySession';
 function localDetail(){
   const room={};
-  for(const s of Object.values(byId)){
+  for(const s of Object.values(curById())){
     const k=s.room||'(ไม่ระบุ)'; room[k]=room[k]||{name:k,total:0,registered:0};
-    room[k].total++; if(localReg[s.id.toUpperCase()]) room[k].registered++;
+    room[k].total++; if(localReg[regKey(s.id)]) room[k].registered++;
   }
   const st=localStats();
-  const grp=f=>{const m={};for(const s of Object.values(byId)){const k=s[f]||'(ไม่ระบุ)';m[k]=m[k]||{name:k,total:0,registered:0};m[k].total++;if(localReg[s.id.toUpperCase()])m[k].registered++;}return Object.values(m);};
+  const grp=f=>{const m={};for(const s of Object.values(curById())){const k=s[f]||'(ไม่ระบุ)';m[k]=m[k]||{name:k,total:0,registered:0};m[k].total++;if(localReg[regKey(s.id)])m[k].registered++;}return Object.values(m);};
   return {...st,byRoom:Object.values(room).sort((a,b)=>a.name.localeCompare(b.name,'th')),byMajor:grp('major'),bySession:grp('session'),byProgram:grp('program')};
 }
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -875,7 +1135,7 @@ function renderDetail(){
   if(!detailData){return;}
   const list=detailData[detailKey]||[];
   if(!list.length){body.innerHTML='<div class="sd-empty">ยังไม่มีข้อมูล</div>';return;}
-  body.innerHTML='<table class="sd-table"><thead><tr><th>'+({byRoom:'ห้อง / กลุ่ม',byMajor:'สาขา',bySession:'รอบ',byProgram:'หลักสูตร'}[detailKey])+'</th><th>ลงทะเบียนแล้ว</th><th class="r">ทั้งหมด</th></tr></thead><tbody>'+
+  body.innerHTML='<table class="sd-table"><thead><tr><th>'+({byRoom:L('room'),byMajor:L('major'),bySession:'รอบ',byProgram:L('program')}[detailKey])+'</th><th>ลงทะเบียนแล้ว</th><th class="r">ทั้งหมด</th></tr></thead><tbody>'+
     list.map(r=>{const pct=r.total?Math.round(r.registered*100/r.total):0;
       return `<tr><td class="nm">${esc(r.name)}</td><td><div class="sd-cell"><span class="sd-bar"><span style="width:${pct}%"></span></span><span class="sd-n"><b>${r.registered.toLocaleString('th-TH')}</b> <small>${pct}%</small></span></div></td><td class="r">${r.total.toLocaleString('th-TH')}</td></tr>`;}).join('')+
     '</tbody></table>';
@@ -888,12 +1148,13 @@ async function loadDetail(){
     if(!detailData||!detailData.byRoom||!detailData.bySession||!detailData.byProgram) throw new Error('Apps Script ยังเป็นเวอร์ชันเก่า (อัปเดต Code.gs แล้วทำให้ใช้งานได้เป็นเวอร์ชันใหม่)');
     renderStats(detailData);
     const t=detailData.total,r=detailData.registered;
-    sum.textContent=`ต้องลงทะเบียน ${t.toLocaleString('th-TH')} คน · ลงทะเบียนแล้ว ${r.toLocaleString('th-TH')} คน · ยังไม่มา ${(t-r).toLocaleString('th-TH')} คน`;
+    sum.textContent=`${curInfo().label} · ต้องลงทะเบียน ${t.toLocaleString('th-TH')} คน · ลงทะเบียนแล้ว ${r.toLocaleString('th-TH')} คน · ยังไม่มา ${(t-r).toLocaleString('th-TH')} คน`;
     const d=new Date();document.getElementById('sdTime').textContent=`อัปเดต ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} น.`;
     renderDetail();
   }catch(e){ sum.textContent='โหลดไม่ได้: '+e.message; document.getElementById('sdBody').innerHTML=''; }
 }
 function openStats(){
+  openedDetail=true;
   const dlg=document.getElementById('statsDlg');
   if(typeof dlg.showModal==='function') dlg.showModal(); else dlg.setAttribute('open','');
   loadDetail();
@@ -927,8 +1188,9 @@ async function doRegister(){
   try{
     if(!API_URL){
       const d=new Date(),z=n=>String(n).padStart(2,'0');
-      localReg[foundEntry.id.toUpperCase()]=localReg[foundEntry.id.toUpperCase()]||`${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:00`;
-      foundEntry.registeredAt=localReg[foundEntry.id.toUpperCase()];
+      const rk=regKey(foundEntry.id);
+      localReg[rk]=localReg[rk]||`${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:00`;
+      foundEntry.registeredAt=localReg[rk];
       renderStats(localStats());
     }else{
       const list=toEntries(await api({action:'register',id:foundEntry.id,session:foundEntry.session}));
@@ -948,7 +1210,7 @@ async function doRegister(){
 let foundMatches=[];
 
 async function doSearch(){
-  const q=document.getElementById('sid').value.trim().toUpperCase();
+  const q=normId(document.getElementById('sid').value);
   const btn=document.querySelector('.s-btn');
   document.getElementById('errCard').hidden=true;
   document.getElementById('infoStrip').hidden=true;
@@ -960,8 +1222,8 @@ async function doSearch(){
   catch(e){ console.error(e); showError('เชื่อมต่อฐานข้อมูลไม่ได้ ลองใหม่อีกครั้ง ('+e.message+')'); return; }
   finally{ btn.disabled=false; btn.textContent='ค้นหา'; }
 
-  if(!list.length){ showError(`ไม่พบรหัสนักศึกษา "${q}" ในระบบ`); return; }
-  if(!list.some(m=>parseSeat(m.seat))){ showError(`รหัส ${q} ยังไม่ได้กำหนดที่นั่ง`); return; }
+  if(!list.length){ showError(`ไม่พบ${L('id')} "${isCitizen()?maskCitizen(q):q}" ใน ${curInfo().label}`); return; }
+  if(!list.some(m=>parseSeat(m.seat))){ showError(`${L('id')} ${isCitizen()?maskCitizen(q):q} ยังไม่ได้กำหนดที่นั่ง`); return; }
 
   foundMatches=list;
   const first=list.findIndex(m=>parseSeat(m.seat));
@@ -975,7 +1237,8 @@ function showEntry(i){
   foundEntry=s;
   const p=parseSeat(s.seat);
   const set=(id,v)=>{document.getElementById(id).textContent=v;};
-  set('rId',s.id);
+  set('rIdLbl',L('id'));
+  set('rId',isCitizen()?maskCitizen(s.id):s.id);
   set('rName',s.name||'—');
   set('rProgram',s.program||'—');
   set('rMajor',s.major||'—');
@@ -1002,6 +1265,61 @@ function renderSessSwitch(){
     `<button type="button" class="ss-btn${m===foundEntry?' on':''}" onclick="showEntry(${i})">${esc(m.session||('รอบที่ '+(i+1)))}${m.registeredAt?' <span class="ss-ok">✓</span>':''}</button>`).join('');
 }
 
+
+// ══════════════════════════════════════════════════════
+//  โหมดดูผัง: แตะที่นั่งเพื่อดูข้อมูลของที่นั่งนั้น
+// ══════════════════════════════════════════════════════
+function seatSpecLocal(code){const p=parseSeat(String(code||'').toUpperCase());return p;}
+async function fetchSeatInfo(code){
+  if(API_URL){ const j=await api({action:'seatinfo',seat:code}); return {count:(j&&j.count)||0,people:(j&&j.people)||[]}; }
+  const q=parseSeat(code), out=[];
+  for(const s of Object.values(curById())){
+    const sp=parseSeat(s.seat||''); if(!sp||sp.zone!==q.zone||q.row<sp.row||q.row>sp.rowEnd) continue;
+    if(sp.seat!=null&&sp.seat!==q.seat) continue;
+    out.push({...s,exact:sp.seat!=null,registeredAt:localReg[regKey(s.id)]||''});
+  }
+  out.sort((a,b)=>(b.exact?1:0)-(a.exact?1:0));
+  return {count:out.length,people:out};
+}
+function personCard(m){
+  const row=(k,v)=>v?`<div class="pc-row"><span>${esc(L(k))}</span><b>${esc(v)}</b></div>`:'';
+  const id=isCitizen()?maskCitizen(m.id):m.id;
+  const col=ROOM_COLORS.get(m.room||'');
+  return `<div class="p-card">
+    <div class="pc-name">${esc(m.name||'—')}</div>
+    <div class="pc-grid">
+      ${row('id',id)}${row('major',m.major)}${row('program',m.program)}${row('advisor',m.advisor)}
+      ${m.room?`<div class="pc-row"><span>${esc(L('room'))}</span><b>${col?`<i class="pc-dot" style="background:${col}"></i>`:''}${esc(m.room)}</b></div>`:''}
+      ${row('seat',m.exact?m.seat:m.seat+' (ทั้งพื้นที่)')}
+    </div>
+    <div class="pc-reg ${m.registeredAt?'ok':''}">${m.registeredAt?'✓ ลงทะเบียนแล้ว '+esc(fmtTime(m.registeredAt)):'ยังไม่ได้ลงทะเบียน'}</div>
+  </div>`;
+}
+async function openSeat(code){
+  const p=parseSeat(code); if(!p||p.seat==null) return;
+  const dlg=document.getElementById('seatDlg'), body=document.getElementById('seatDlgBody');
+  document.getElementById('seatDlgTitle').textContent='ที่นั่ง '+code;
+  document.getElementById('seatDlgSub').textContent=`โซน ${p.zone}${VENUE[p.zone]?' ('+VENUE[p.zone].floor+')':''} · แถวที่ ${p.row} · ที่นั่งที่ ${p.seat}`;
+  body.innerHTML='<div class="sd-empty">กำลังโหลด…</div>';
+  if(typeof dlg.showModal==='function'){ if(!dlg.open) dlg.showModal(); } else dlg.setAttribute('open','');
+  try{
+    const r=await fetchSeatInfo(code);
+    if(!r.count){ body.innerHTML='<div class="seat-free"><span class="sf-dot"></span>ที่นั่งว่าง ยังไม่มีการจัดคนนั่ง</div>'; return; }
+    const exact=r.people.filter(x=>x.exact).length;
+    const head=r.count>1?`<div class="seat-note">${exact?'':'ที่นั่งนี้อยู่ในพื้นที่ที่จัดให้ทั้งกลุ่ม · '}มี ${r.count.toLocaleString('th-TH')} คนที่ได้ที่นั่งนี้${exact>1?' (ซ้ำกัน ควรตรวจสอบในชีต)':''}${r.people.length<r.count?` · แสดง ${r.people.length} คนแรก`:''}</div>`:'';
+    body.innerHTML=head+r.people.map(personCard).join('');
+  }catch(e){ body.innerHTML=`<div class="sd-empty">โหลดข้อมูลไม่ได้: ${esc(e.message)}</div>`; }
+}
+function closeSeat(){const d=document.getElementById('seatDlg');if(d.close)d.close();else d.removeAttribute('open');}
+document.getElementById('seatDlg').addEventListener('click',e=>{ if(e.target.id==='seatDlg') closeSeat(); });
+// จับคลิกก่อนถึงโซน (capture) เฉพาะโหมดดูผัง
+document.getElementById('mapBody').addEventListener('click',e=>{
+  if(!isMapMode()) return;
+  const el=e.target.closest('[data-seat]'); if(!el) return;
+  e.stopPropagation(); e.preventDefault();
+  openSeat(el.getAttribute('data-seat'));
+},true);
+
 // ── Input ─────────────────────────────────────────────
 const inp=document.getElementById('sid');
 inp.addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
@@ -1023,23 +1341,133 @@ if(params.get('embed')==='1'){
   if(params.get('id')) document.querySelector('.search-card').hidden=true;
 }
 // ══════════════════════════════════════════════════════
+//  เลือกชุดข้อมูล — แถบเลือกจะซ่อนเองเมื่อมีชุดข้อมูลเดียว
+// ══════════════════════════════════════════════════════
+let DS_LIST=LOCAL_DS, curDS='main';
+const DS_STORE='searcher_ds';
+function curInfo(){return DS_LIST.find(d=>d.key===curDS)||DS_LIST[0]||{key:'main',label:'',idLabel:'รหัสนักศึกษา'};}
+function isCitizen(){return curInfo().idType==='citizen';}
+function maskCitizen(s){s=normId(s);return s.length===13?`${s[0]}-${s.slice(1,5)}-xxxxx-${s.slice(10,12)}-${s[12]}`:s;}
+// ชื่อหัวคอลัมน์ของชีตที่เลือก (อ่านจากชีตจริง) — ใช้แสดงบนเว็บ
+const DEFAULT_LABELS={id:'รหัสนักศึกษา',name:'ชื่อ-นามสกุล',major:'สาขา',program:'หลักสูตร',advisor:'อาจารย์ที่ปรึกษา',room:'ห้อง / กลุ่ม',seat:'ที่นั่ง / พื้นที่'};
+function L(k){const l=curInfo().labels;return (l&&l[k])||(k==='id'?curInfo().idLabel:null)||DEFAULT_LABELS[k];}
+function applyLabels(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('lblName',L('name'));set('lblProgram',L('program'));set('lblMajor',L('major'));
+  set('lblAdvisor',L('advisor'));set('lblRoom',L('room'));set('lblSeat',L('seat'));set('rIdLbl',L('id'));
+  const tab=k=>document.querySelector(`.sd-tab[data-k="${k}"]`);
+  if(tab('byRoom'))tab('byRoom').textContent='แยกตาม'+(/^[A-Za-z0-9]/.test(L('room'))?' ':'')+L('room');
+  if(tab('byMajor'))tab('byMajor').textContent='แยกตาม'+(/^[A-Za-z0-9]/.test(L('major'))?' ':'')+L('major');
+  if(tab('byProgram'))tab('byProgram').textContent='แยกตาม'+(/^[A-Za-z0-9]/.test(L('program'))?' ':'')+L('program');
+}
+function applyDSUI(){
+  applyLabels();
+  const info=curInfo(), inp=document.getElementById('sid');
+  document.getElementById('sLbl').textContent='ค้นหาด้วย'+(/^[A-Za-z0-9]/.test(L('id'))?' ':'')+L('id');
+  inp.placeholder=isCitizen()?'0-0000-00000-00-0':'B0000000';
+  inp.maxLength=isCitizen()?17:20;
+  inp.inputMode=isCitizen()?'numeric':'text';
+  const hint=document.querySelector('.s-hint'); if(hint) hint.hidden=isCitizen();
+  const bar=document.getElementById('dsBar');
+  bar.hidden=true;
+  bar.innerHTML='<span class="ds-lbl">ชุดข้อมูล</span>'+DS_LIST.map(d=>
+    `<button type="button" class="ds-btn${d.key===curDS?' on':''}${d.ready===false?' off':''}" onclick="switchDS('${d.key}')" ${d.ready===false?'title="ยังไม่มีแท็บนี้ในชีต"':''}>${esc(d.label)}</button>`).join('');
+  // แท็บ "แยกตามรอบ" ใช้เฉพาะชุดข้อมูลที่มีหลายรอบ
+  const multi=(info.tabs||1)>1;
+  const tab=document.querySelector('.sd-tab[data-k="bySession"]'); if(tab) tab.hidden=!multi;
+  if(!multi&&detailKey==='bySession') detailKey='byRoom';
+  if(multi&&detailKey==='byRoom'&&!openedDetail) detailKey='bySession';
+  document.querySelectorAll('.sd-tab').forEach(x=>{x.classList.toggle('on',x.dataset.k===detailKey);x.setAttribute('aria-selected',x.dataset.k===detailKey);});
+}
+let openedDetail=false;
+function switchDS(key){
+  if(!DS_LIST.some(d=>d.key===key)) return;
+  curDS=key; store(DS_STORE,key);
+  foundEntry=null; foundMatches=[]; OCC=new Map(); OCC_INFO=null; ROOM_COLORS=new Map();
+  document.getElementById('infoStrip').hidden=true;
+  document.getElementById('errCard').hidden=true;
+  document.getElementById('sid').value='';
+  activeZone='all'; updateTabs(); renderAll();
+  applyDSUI(); loadStats();
+}
+async function loadDatasets(){
+  if(API_URL){
+    const j=await api({action:'datasets'});
+    if(j&&Array.isArray(j.datasets)&&j.datasets.length) DS_LIST=j.datasets;
+  }else{
+    DS_LIST=DS_LIST.map(d=>{const m=byIdSets[d.key]||{};const ids=Object.keys(m);
+      return {...d,ready:true,total:ids.length,registered:ids.filter(i=>localReg[d.key+':'+i]).length};});
+  }
+}
+
+// ── หน้าเลือกชุดข้อมูล (หลังเข้าสู่ระบบ) ─────────────────
+async function openChooser(){
+  document.body.classList.add('choosing');
+  const grid=document.getElementById('chGrid'), sub=document.getElementById('chSub');
+  sub.textContent='กำลังโหลด…';
+  if(!grid.children.length) grid.innerHTML=DS_LIST.map(()=>'<div class="ch-card skel"></div>').join('');
+  try{ await loadDatasets(); }
+  catch(e){ if(e.auth) return; sub.textContent='โหลดรายการไม่ได้: '+e.message; return; }
+  sub.textContent='แตะชื่อชีตเพื่อเริ่มค้นหาที่นั่ง';
+  const last=recall(DS_STORE)||curDS;
+  grid.innerHTML=DS_LIST.map((d,i)=>{
+    const off=d.ready===false, isLast=!off&&d.key===last&&started;
+    const sub=off?'<span class="ch-warn">ยังไม่มีแท็บนี้ในชีต</span>':(isLast?'<span class="ch-tag">ใช้งานล่าสุด</span>':'');
+    return `<button type="button" class="ch-card${isLast?' cur':''}${off?' off':''}" style="--i:${i}" data-k="${esc(d.key)}" ${off?'disabled':''}>
+      <span class="ch-text"><span class="ch-name">${esc(d.label)}</span>${sub}</span>
+      <span class="ch-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span></button>`;}).join('');
+  grid.querySelectorAll('.ch-card[data-k]').forEach(b=>b.addEventListener('click',()=>enterDS(b.dataset.k)));
+}
+function enterDS(key){
+  document.body.classList.remove('choosing');
+  switchDS(key);
+  document.getElementById('dsPillName').textContent=curInfo().label;
+  if(!started){
+    started=true;
+    setInterval(()=>{ if(!document.hidden&&AUTH_KEY&&!document.body.classList.contains('choosing')) loadStats(); },30000);
+    if(params.get('id')){ inp.value=params.get('id').trim().toUpperCase(); doSearch(); }
+  }
+  if(!isMapMode()) setTimeout(()=>document.getElementById('sid').focus(),50);
+}
+
+// ══════════════════════════════════════════════════════
 //  เข้าสู่ระบบ — ใช้รหัสผ่านเดียว ตรวจที่ Apps Script (ไม่ได้เก็บรหัสไว้ในไฟล์นี้)
 //  ถ้ายังไม่ได้ต่อ Google Sheets (API_URL ว่าง) จะตรวจจากค่า hash ด้านล่างแทน
 // ══════════════════════════════════════════════════════
-const LOCAL_PW_SHA256='c7b9fa24352c9c96c0a57c12b3527d11884081ec3153763283a3875f6c90fd47'; // ใช้เฉพาะโหมดไม่มี API
+// ใช้เฉพาะโหมดไม่มี API: hash ของรหัสผ่าน → สิทธิ์
+const LOCAL_ROLES={'c7b9fa24352c9c96c0a57c12b3527d11884081ec3153763283a3875f6c90fd47':'staff','1a9ceaf5febc27337fc9437f65ad4509a66494102ddc5e37cbba29b172eaa672':'map'};
 let AUTH_KEY=null, started=false;
 const KEY_STORE='searcher_key';
 function store(k,v){try{v==null?sessionStorage.removeItem(k):sessionStorage.setItem(k,v);}catch(e){}}
 function recall(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
 
 async function sha256(s){
-  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
-  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+  if(window.crypto&&crypto.subtle){
+    try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+      return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}catch(e){}
+  }
+  // สำรอง: SHA-256 แบบเขียนเอง (กรณีเบราว์เซอร์ไม่อนุญาต crypto.subtle)
+  const K=[0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+  const bytes=[...new TextEncoder().encode(s)], l=bytes.length*8;
+  bytes.push(0x80); while(bytes.length%64!==56) bytes.push(0);
+  for(let i=7;i>=0;i--) bytes.push(i>3?0:(l>>>(i*8))&255);
+  let H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+  const r=(x,n)=>(x>>>n)|(x<<(32-n));
+  for(let o=0;o<bytes.length;o+=64){
+    const w=new Array(64);
+    for(let i=0;i<16;i++) w[i]=(bytes[o+4*i]<<24)|(bytes[o+4*i+1]<<16)|(bytes[o+4*i+2]<<8)|bytes[o+4*i+3];
+    for(let i=16;i<64;i++){const s0=r(w[i-15],7)^r(w[i-15],18)^(w[i-15]>>>3),s1=r(w[i-2],17)^r(w[i-2],19)^(w[i-2]>>>10);w[i]=(w[i-16]+s0+w[i-7]+s1)|0;}
+    let [a,b,c,d,e,f,g,h]=H;
+    for(let i=0;i<64;i++){const t1=(h+(r(e,6)^r(e,11)^r(e,25))+((e&f)^(~e&g))+K[i]+w[i])|0,t2=((r(a,2)^r(a,13)^r(a,22))+((a&b)^(a&c)^(b&c)))|0;h=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;}
+    H=H.map((v,i)=>(v+[a,b,c,d,e,f,g,h][i])|0);
+  }
+  return H.map(v=>(v>>>0).toString(16).padStart(8,'0')).join('');
 }
+// คืนค่าสิทธิ์ ('staff' / 'map') หรือ false ถ้ารหัสผิด
 async function checkKey(key){
-  if(!API_URL) return (await sha256(key))===LOCAL_PW_SHA256;
+  if(!API_URL) return LOCAL_ROLES[await sha256(key)]||false;
   AUTH_KEY=key;
-  try{ const j=await api({action:'login'}); return !!(j&&j.ok); }
+  try{ const j=await api({action:'login'}); return j&&j.ok?(j.role||'staff'):false; }
   catch(e){ if(e.auth) return false; throw e; }
 }
 function showLogin(msg){
@@ -1048,30 +1476,33 @@ function showLogin(msg){
   document.getElementById('loginErr').textContent=msg||'';
   const pw=document.getElementById('pw'); pw.value=''; setTimeout(()=>pw.focus(),50);
 }
-function logout(){ showLogin(''); }
-function unlock(){
+function logout(){ document.body.classList.remove('choosing','mode-map'); ROLE='staff'; OCC=new Map(); store(ROLE_STORE,null); store(DS_STORE,null); showLogin(''); }
+// หลังเข้าสู่ระบบ: ไปหน้าเลือกชุดข้อมูลก่อน
+// (ถ้าลิงก์มี ?ds=s1 หรือรีเฟรชหน้าเดิมที่เลือกไว้แล้ว จะเข้าชุดนั้นเลย)
+async function unlock(fromLogin){
   document.body.classList.remove('locked');
-  if(started){ loadStats(); return; }
-  started=true;
-  renderAll();
-  loadStats();
-  setInterval(()=>{ if(!document.hidden&&AUTH_KEY) loadStats(); },30000);
-  if(params.get('id')){
-    inp.value=params.get('id').trim().toUpperCase();
-    doSearch();
-  }
+  try{ await loadDatasets(); }catch(e){ if(e.auth) return; }
+  const want=params.get('ds')||(fromLogin?null:recall(DS_STORE));
+  if(want&&DS_LIST.some(d=>d.key===want&&d.ready!==false)) enterDS(want);
+  else openChooser();
 }
-document.getElementById('loginForm').addEventListener('submit',async e=>{
-  e.preventDefault();
+// ไม่ใช้การ submit ฟอร์ม (บางหน้าพรีวิว/iframe บล็อกการส่งฟอร์ม) — ใช้คลิกปุ่มและปุ่ม Enter แทน
+document.getElementById('loginForm').addEventListener('submit',e=>{e.preventDefault();doLogin();});
+document.getElementById('loginBtn').addEventListener('click',()=>doLogin());
+document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();doLogin();}});
+let loggingIn=false;
+async function doLogin(){
+  if(loggingIn) return;
   const key=document.getElementById('pw').value.trim(), btn=document.getElementById('loginBtn'), err=document.getElementById('loginErr');
-  if(!key) return;
-  btn.disabled=true; btn.textContent='กำลังตรวจสอบ…'; err.textContent='';
+  if(!key){ err.textContent='กรุณากรอกรหัสผ่าน'; return; }
+  loggingIn=true; btn.disabled=true; btn.textContent='กำลังตรวจสอบ…'; err.textContent='';
   try{
-    if(await checkKey(key)){ AUTH_KEY=key; store(KEY_STORE,key); unlock(); }
+    const role=await checkKey(key);
+    if(role){ AUTH_KEY=key; store(KEY_STORE,key); store(DS_STORE,null); setRole(role); unlock(true); }
     else{ AUTH_KEY=null; err.textContent='รหัสผ่านไม่ถูกต้อง'; document.getElementById('pw').select(); }
   }catch(ex){ AUTH_KEY=null; err.textContent='เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง ('+ex.message+')'; }
-  finally{ btn.disabled=false; btn.textContent='เข้าสู่ระบบ'; }
-});
+  finally{ loggingIn=false; btn.disabled=false; btn.textContent='เข้าสู่ระบบ'; }
+}
 document.getElementById('pwEye').addEventListener('click',()=>{
   const pw=document.getElementById('pw'); pw.type=pw.type==='password'?'text':'password'; pw.focus();
 });
@@ -1080,7 +1511,7 @@ document.getElementById('pwEye').addEventListener('click',()=>{
 (async()=>{
   const saved=recall(KEY_STORE);
   if(saved){
-    try{ if(await checkKey(saved)){ AUTH_KEY=saved; unlock(); return; } }catch(e){}
+    try{ const role=await checkKey(saved); if(role){ AUTH_KEY=saved; setRole(role); unlock(); return; } }catch(e){}
   }
   showLogin('');
 })();
