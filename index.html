@@ -353,15 +353,59 @@ button.hdr-stats:hover .hs-more{color:#fff;}
 .name-row{padding:16px 20px 14px;border-bottom:1px solid var(--border);}
 .nr-lbl{font-size:10px;font-weight:700;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;}
 .nr-name{font-size:clamp(22px,5.5vw,30px);font-weight:700;line-height:1.3;color:var(--fg);word-break:break-word;}
+
+/* ── หน้าเข้าสู่ระบบ ── */
+.login{display:none;}
+body.locked .login{display:grid;place-items:center;min-height:100vh;min-height:100dvh;padding:24px 16px;background:linear-gradient(160deg,var(--primary) 0%,#0a2149 100%);}
+body.locked > .hdr, body.locked > .gold-stripe, body.locked > .wrap{display:none;}
+.login-card{width:min(360px,100%);background:var(--surface);color:var(--fg);border-radius:18px;padding:28px 24px 22px;box-shadow:0 24px 60px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:10px;}
+.login-brand{display:flex;align-items:center;justify-content:center;gap:10px;font-size:34px;font-weight:800;line-height:1;margin-bottom:12px;color:var(--fg);}
+.login-brand .brand-mark{width:1em;height:1em;}
+.login-brand .brand-mark rect{fill:var(--surface-2);}
+.login-brand .brand-mark rect.hl{fill:var(--accent);}
+.login-brand .brand-word span{color:var(--accent);}
+.login-lbl{font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted);}
+.login-row{position:relative;}
+.login-inp{width:100%;padding:12px 44px 12px 14px;font-size:18px;font-family:'IBM Plex Mono',monospace;letter-spacing:.12em;border:2px solid var(--border);border-radius:10px;background:var(--surface);color:var(--fg);outline:none;transition:border-color .18s,box-shadow .18s;}
+.login-inp:focus{border-color:var(--primary-hi);box-shadow:0 0 0 3px rgba(42,98,204,.15);}
+.pw-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:none;background:none;cursor:pointer;font-size:16px;opacity:.55;border-radius:8px;}
+.pw-eye:hover{opacity:1;background:var(--surface-2);}
+.login-btn{margin-top:4px;padding:12px;border:none;border-radius:10px;background:var(--primary-mid);color:#fff;font-family:'Sarabun',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:background .18s;}
+.login-btn:hover{background:var(--primary-hi);}
+.login-btn:disabled{opacity:.7;cursor:wait;}
+.login-err{min-height:20px;font-size:13px;font-weight:600;color:var(--err-fg);text-align:center;}
+.logout-btn{position:absolute;top:12px;left:max(14px,env(safe-area-inset-left,0px));padding:6px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:rgba(255,255,255,.7);font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
+.logout-btn:hover{background:rgba(255,255,255,.14);color:#fff;}
+@media(max-width:520px){.logout-btn{top:10px;}}
 </style>
 </head>
-<body>
+<body class="locked">
+<div class="login" id="login">
+  <form class="login-card" id="loginForm" autocomplete="off">
+    <div class="login-brand">
+      <svg class="brand-mark" viewBox="2 4 36 34" aria-hidden="true">
+        <rect x="4" y="6" width="9" height="8" rx="2"/><rect x="15.5" y="6" width="9" height="8" rx="2"/><rect x="27" y="6" width="9" height="8" rx="2"/>
+        <rect x="4" y="17" width="9" height="8" rx="2"/><rect class="hl" x="15.5" y="17" width="9" height="8" rx="2"/><rect x="27" y="17" width="9" height="8" rx="2"/>
+        <rect x="4" y="28" width="9" height="8" rx="2"/><rect x="15.5" y="28" width="9" height="8" rx="2"/><rect x="27" y="28" width="9" height="8" rx="2"/>
+      </svg>
+      <span class="brand-word">Search<span>er</span></span>
+    </div>
+    <label class="login-lbl" for="pw">รหัสผ่าน</label>
+    <div class="login-row">
+      <input class="login-inp" id="pw" type="password" autocomplete="current-password" placeholder="••••••" required>
+      <button type="button" class="pw-eye" id="pwEye" aria-label="แสดงรหัสผ่าน">👁</button>
+    </div>
+    <button class="login-btn" id="loginBtn" type="submit">เข้าสู่ระบบ</button>
+    <div class="login-err" id="loginErr" role="alert"></div>
+  </form>
+</div>
 <header class="hdr">
   <button type="button" class="hdr-stats" id="statsCard" aria-live="polite" title="" onclick="openStats()" aria-haspopup="dialog">
     <span class="hs-top"><span class="hs-lbl">ลงทะเบียนแล้ว</span><span class="hs-num"><b id="stReg">–</b>/<span id="stTotal">–</span></span></span>
     <span class="hs-bar" id="stBar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><span class="hs-fill" id="stFill"></span></span>
     <span class="hs-more">ดูยอดแยกกลุ่ม ›</span>
   </button>
+  <button type="button" class="logout-btn" onclick="logout()" title="ออกจากระบบ">⎋ ออกจากระบบ</button>
   <h1 class="brand">
     <svg class="brand-mark" viewBox="2 4 36 34" aria-hidden="true">
       <rect x="4" y="6" width="9" height="8" rx="2"/><rect x="15.5" y="6" width="9" height="8" rx="2"/><rect x="27" y="6" width="9" height="8" rx="2"/>
@@ -755,7 +799,7 @@ function jsonp(url){
 
 // เรียก Web App: ลอง fetch ก่อน ไม่ได้ค่อยใช้ JSONP
 async function api(params){
-  const url=API_URL+'?'+new URLSearchParams(params).toString();
+  const url=API_URL+'?'+new URLSearchParams({...params,key:AUTH_KEY||''}).toString();
   let j, firstErr;
   try{
     const r=await fetch(url,{redirect:'follow'});
@@ -766,6 +810,7 @@ async function api(params){
     try{ j=await jsonp(url); }
     catch(e2){ throw new Error((firstErr?.message||'')+' / '+e2.message); }
   }
+  if(j&&j.auth===false){ const e=new Error(j.error||'รหัสผ่านไม่ถูกต้อง'); e.auth=true; if(params.action!=='login') showLogin(e.message); throw e; }
   if(j&&j.error) throw new Error(j.error);
   if(j&&j.stats) renderStats(j.stats);
   return j;
@@ -977,13 +1022,68 @@ if(params.get('embed')==='1'){
   document.querySelector('.gold-stripe')?.remove();
   if(params.get('id')) document.querySelector('.search-card').hidden=true;
 }
-renderAll();
-loadStats();
-setInterval(()=>{ if(!document.hidden) loadStats(); },30000);
-if(params.get('id')){
-  inp.value=params.get('id').trim().toUpperCase();
-  doSearch();
+// ══════════════════════════════════════════════════════
+//  เข้าสู่ระบบ — ใช้รหัสผ่านเดียว ตรวจที่ Apps Script (ไม่ได้เก็บรหัสไว้ในไฟล์นี้)
+//  ถ้ายังไม่ได้ต่อ Google Sheets (API_URL ว่าง) จะตรวจจากค่า hash ด้านล่างแทน
+// ══════════════════════════════════════════════════════
+const LOCAL_PW_SHA256='c7b9fa24352c9c96c0a57c12b3527d11884081ec3153763283a3875f6c90fd47'; // ใช้เฉพาะโหมดไม่มี API
+let AUTH_KEY=null, started=false;
+const KEY_STORE='searcher_key';
+function store(k,v){try{v==null?sessionStorage.removeItem(k):sessionStorage.setItem(k,v);}catch(e){}}
+function recall(k){try{return sessionStorage.getItem(k);}catch(e){return null;}}
+
+async function sha256(s){
+  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
+async function checkKey(key){
+  if(!API_URL) return (await sha256(key))===LOCAL_PW_SHA256;
+  AUTH_KEY=key;
+  try{ const j=await api({action:'login'}); return !!(j&&j.ok); }
+  catch(e){ if(e.auth) return false; throw e; }
+}
+function showLogin(msg){
+  AUTH_KEY=null; store(KEY_STORE,null);
+  document.body.classList.add('locked');
+  document.getElementById('loginErr').textContent=msg||'';
+  const pw=document.getElementById('pw'); pw.value=''; setTimeout(()=>pw.focus(),50);
+}
+function logout(){ showLogin(''); }
+function unlock(){
+  document.body.classList.remove('locked');
+  if(started){ loadStats(); return; }
+  started=true;
+  renderAll();
+  loadStats();
+  setInterval(()=>{ if(!document.hidden&&AUTH_KEY) loadStats(); },30000);
+  if(params.get('id')){
+    inp.value=params.get('id').trim().toUpperCase();
+    doSearch();
+  }
+}
+document.getElementById('loginForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const key=document.getElementById('pw').value.trim(), btn=document.getElementById('loginBtn'), err=document.getElementById('loginErr');
+  if(!key) return;
+  btn.disabled=true; btn.textContent='กำลังตรวจสอบ…'; err.textContent='';
+  try{
+    if(await checkKey(key)){ AUTH_KEY=key; store(KEY_STORE,key); unlock(); }
+    else{ AUTH_KEY=null; err.textContent='รหัสผ่านไม่ถูกต้อง'; document.getElementById('pw').select(); }
+  }catch(ex){ AUTH_KEY=null; err.textContent='เชื่อมต่อไม่ได้ ลองใหม่อีกครั้ง ('+ex.message+')'; }
+  finally{ btn.disabled=false; btn.textContent='เข้าสู่ระบบ'; }
+});
+document.getElementById('pwEye').addEventListener('click',()=>{
+  const pw=document.getElementById('pw'); pw.type=pw.type==='password'?'text':'password'; pw.focus();
+});
+
+// เปิดหน้าใหม่ในแท็บเดิม: ใช้รหัสที่จำไว้ (จำจนกว่าจะปิดแท็บ)
+(async()=>{
+  const saved=recall(KEY_STORE);
+  if(saved){
+    try{ if(await checkKey(saved)){ AUTH_KEY=saved; unlock(); return; } }catch(e){}
+  }
+  showLogin('');
+})();
 </script>
 </body>
 </html>
