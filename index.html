@@ -1208,7 +1208,8 @@ function renderSingle(zone){
   },100);
 }
 
-const API_URL = 'api.php';   // ไฟล์ backend (อยู่โฟลเดอร์เดียวกัน)
+// ▼▼ วาง URL ของ Apps Script (ลงท้ายด้วย /exec) ระหว่างเครื่องหมาย ' ' ▼▼
+const API_URL = 'PASTE_APPS_SCRIPT_URL_HERE';
 
 function showError(msg){
   const c=document.getElementById('errCard');
@@ -1260,9 +1261,10 @@ async function api(params){
   let p=dk?inflight.get(dk):null;
   if(!p){
     p=(async()=>{
+      if(/PASTE_/.test(API_URL)) throw new Error('ยังไม่ได้ใส่ URL ของ Apps Script ใน index.html (ค่า API_URL)');
       const ctl=new AbortController(), timer=setTimeout(()=>ctl.abort(),params.action==='import'?120000:20000);
       try{
-        const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),cache:'no-store',signal:ctl.signal});
+        const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body),cache:'no-store',signal:ctl.signal});
         const t=await r.text(); let j;
         try{ j=JSON.parse(t); }catch(e){ throw new Error('เซิร์ฟเวอร์ตอบกลับผิดรูปแบบ (HTTP '+r.status+')'); }
         return j;
