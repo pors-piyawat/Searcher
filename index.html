@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Searcher (ตัวอย่าง)</title>
+<title>Searcher</title>
 <link rel="preconnect" href="https://script.google.com" crossorigin>
 <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300..800&family=Noto+Sans:wght@300..800&display=swap">
@@ -738,14 +738,9 @@ body.mode-map .sv-zone .sv-seat{cursor:zoom-in;}
 .cpe-credit b{display:block;color:#800020;font-size:10.5px;}
 .wrap{padding-bottom:72px;}
 @media(max-width:520px){.cpe-credit{padding:5px 8px 5px 6px;}.cpe-credit i{width:42px;height:26px;}.cpe-credit span{display:none;}}
-.demo-bar{position:fixed;left:12px;bottom:12px;z-index:60;max-width:calc(100vw - 150px);padding:7px 12px;border-radius:10px;background:#1d1a1b;color:#fff;font-size:12px;line-height:1.5;box-shadow:0 6px 18px rgba(0,0,0,.3);}
-.demo-bar b{color:var(--gold-lt);}
-body:not(.locked) .demo-bar{display:none;}
-.demo-bar button{margin-left:4px;padding:2px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;font:inherit;cursor:pointer;}
 </style>
 </head>
 <body class="locked">
-<div class="demo-bar">โหมดตัวอย่าง (ยังไม่ต่อเซิร์ฟเวอร์) · รหัส <b>register</b> · <b>admin</b> · <b>stage</b> · <button type="button" onclick="resetDemo()">รีเซ็ตข้อมูล</button></div>
 <div class="cpe-credit" role="note" aria-label="สาขาวิชาวิศวกรรมคอมพิวเตอร์"><i aria-hidden="true"></i><span><b>สาขาวิชาวิศวกรรมคอมพิวเตอร์</b></span></div>
 <div class="login" id="login">
   <form class="login-card" id="loginForm" autocomplete="off">
@@ -969,89 +964,6 @@ body:not(.locked) .demo-bar{display:none;}
   </div>
   <button type="button" class="pb-reset" onclick="releaseReset()">คืนที่นั่งทั้งหมดในชีตนี้</button>
 </div>
-<script>
-// ══ โหมดตัวอย่าง: จำลอง api.php ในเบราว์เซอร์ (ไม่ต้องมีเซิร์ฟเวอร์) ══
-(function(){
-  const SHEETS=[['s1','ชีตที่ 1'],['s2','ชีตที่ 2'],['s3','ชีตที่ 3'],['s4','ชีตที่ 4'],['s5','ชีตที่ 5']];
-  const REG='register', ADMIN='admin', STAGE='stage', STORE='searcher_demo_db';
-  let DB=null;
-  try{ DB=JSON.parse(localStorage.getItem(STORE)||'null'); }catch(e){}
-  if(!DB){
-    DB={seq:0,people:[]};
-    const first=['กมล','ณัฐวุฒิ','พิมพ์ชนก','ธนกร','ศิริพร','อนุชา','ปวีณา','วรเมธ','ชลธิชา','กิตติพัฒน์','สุภาวดี','ภูมิพัฒน์','นภัสสร','ธีรวัฒน์','อรอุมา','จิรายุ'];
-    const last=['ใจดี','สุขสันต์','มั่นคง','ศรีสุข','วงศ์ไทย','แก้วมณี','ทองดี','บุญมา'];
-    const majors=['วิศวกรรมคอมพิวเตอร์','วิศวกรรมไฟฟ้า','วิศวกรรมเครื่องกล','วิศวกรรมโยธา'];
-    for(let i=0;i<48;i++){
-      const room='R'+(1+Math.floor(i/16)), zone='BCD'[Math.floor(i/16)], row=1+Math.floor((i%16)/8), seat=1+(i%8);
-      DB.people.push({id:++DB.seq,ds:'s1',sid:'B68'+String(10001+i).slice(1).padStart(5,'0'),name:first[i%16]+' '+last[i%8],
-        program:'วศ.บ.',major:majors[i%4],advisor:'อ.'+first[(i+5)%16],session:i<32?'เช้า':'บ่าย',room,
-        seat:i===47?'':`${zone}${String(row).padStart(2,'0')}-${seat}`,registered_at:i%5===0?'2026-10-28 08:3'+(i%10)+':00':null});
-    }
-  }
-  const save=()=>{ try{localStorage.setItem(STORE,JSON.stringify(DB));}catch(e){} };
-  const now=()=>{const d=new Date(),z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`;};
-  const nid=s=>String(s||'').replace(/[\s-]/g,'').toUpperCase();
-  const F=['name','program','major','advisor','session','room','seat'];
-  const entry=(r,row)=>{const e={id:r.sid,name:r.name,program:r.program,major:r.major,advisor:r.advisor,session:r.session,room:r.room,seat:r.seat.toUpperCase(),registeredAt:r.registered_at||''};if(row)e.rowid=r.id;return e;};
-  const of=ds=>DB.people.filter(p=>p.ds===ds);
-  function clean(r){const sid=nid(r.id);if(!sid)return null;const c={sid};F.forEach(k=>c[k]=String(r[k]??'').trim());c.seat=c.seat.toUpperCase();return c;}
-  function stats(ds,detail){
-    const rows=of(ds),res={total:rows.length,registered:rows.filter(r=>r.registered_at).length};
-    if(detail){const f={bySession:'session',byRoom:'room',byMajor:'major',byProgram:'program'};
-      for(const [k,col] of Object.entries(f)){const m={};rows.forEach(r=>{const n=r[col]||'(ไม่ระบุ)';m[n]=m[n]||{name:n,total:0,registered:0};m[n].total++;if(r.registered_at)m[n].registered++;});
-        res[k]=Object.values(m).sort((a,b)=>a.name.localeCompare(b.name,'th',{numeric:true}));}}
-    return res;
-  }
-  function info(k){const s=SHEETS.find(x=>x[0]===k),st=stats(k);return {key:k,label:s[1],idLabel:'รหัสนักศึกษา',idType:'',ready:true,tabs:Math.max(1,new Set(of(k).map(r=>r.session)).size),...st};}
-  function upsert(ds,c){const ex=DB.people.find(p=>p.ds===ds&&p.sid===c.sid&&p.session===c.session);if(ex){F.forEach(k=>ex[k]=c[k]);return 'u';}DB.people.push({id:++DB.seq,ds,...c,registered_at:null});return 'i';}
-  function handle(IN){
-    const key=String(IN.key||''); let role=null,adm=null;
-    if(key===ADMIN) role='map'; else if(key===STAGE) role='stage'; else if(key===REG) role='staff';
-    if(!role) return {auth:false,error:'รหัสผ่านไม่ถูกต้อง'};
-    const ds=adm||IN.ds, A=IN.action, need=()=>{if(role!=='map')throw new Error('เฉพาะแอดมิน');};
-    const find=sid=>of(ds).filter(p=>p.sid===sid).sort((a,b)=>a.session.localeCompare(b.session)).map(r=>entry(r));
-    switch(A){
-      case 'login': return {ok:true,role,ds:adm};
-      case 'datasets': return {datasets:(adm?[adm]:SHEETS.map(x=>x[0])).map(info)};
-      case 'lookup': {const l=find(nid(IN.id));return Object.assign({found:!!l.length,matches:l,stats:stats(ds)},l[0]||{});}
-      case 'register': {const sid=nid(IN.id);of(ds).forEach(p=>{if(p.sid===sid&&p.session===String(IN.session||'')&&!p.registered_at)p.registered_at=now();});save();return {found:true,matches:find(sid),stats:stats(ds)};}
-      case 'stats': return stats(ds,!!IN.detail);
-      case 'seats': {const seats={},rooms={},released={};let people=0,noSeat=0;of(ds).forEach(r=>{people++;const s=r.seat.toUpperCase();if(!s){noSeat++;return;}if(r.released_at){released[s]=(released[s]||0)+1;return;}seats[s]=(seats[s]||0)+1;if(!(s in rooms))rooms[s]=r.room;});return {seats,rooms,released,people,noSeat};}
-      case 'seatinfo': {const t=parseSeat(String(IN.seat||''));if(!t||t.seat==null)return {count:0,people:[]};
-        const l=of(ds).map(r=>[r,parseSeat(r.seat)]).filter(([r,p])=>p&&p.zone===t.zone&&t.row>=p.row&&t.row<=p.rowEnd&&(p.seat==null||p.seat===t.seat)).map(([r,p])=>({...entry(r),exact:p.seat!=null})).sort((a,b)=>b.exact-a.exact);
-        return {count:l.length,people:l};}
-      case 'release': {if(role!=='stage'&&role!=='map')throw new Error('เฉพาะฝ่ายเวที');const set=new Set((IN.codes||[]).map(c=>String(c).toUpperCase()));let n=0;
-        of(ds).forEach(p=>{if(!set.has(p.seat.toUpperCase()))return;if(IN.undo){if(p.released_at){p.released_at=null;n++;}}else if(!p.released_at){p.released_at=now();n++;}});save();return {ok:true,count:n};}
-      case 'release_reset': {let n=0;of(ds).forEach(p=>{if(p.released_at){p.released_at=null;n++;}});save();return {ok:true,count:n};}
-      case 'rows': need(); return {rows:of(ds).sort((a,b)=>(a.sid+a.session).localeCompare(b.sid+b.session)).map(r=>entry(r,true)),sheet:info(ds)};
-      case 'set_reg': need(); {const p=DB.people.find(x=>x.id===+IN.rowid&&x.ds===ds);if(p)p.registered_at=IN.registered?now():null;save();return {ok:true};}
-      case 'clear_regs': need(); {let n=0;of(ds).forEach(p=>{if(p.registered_at){p.registered_at=null;n++;}});save();return {ok:true,cleared:n};}
-      case 'import': need(); {if(IN.mode==='replace')DB.people=DB.people.filter(p=>p.ds!==ds);let i=0,u=0,sk=0;(IN.rows||[]).forEach(r=>{const c=clean(r);if(!c){sk++;return;}upsert(ds,c)==='i'?i++:u++;});save();return {ok:true,inserted:i,updated:u,skipped:sk};}
-      case 'save_rows': need(); {
-        const dels=new Set((IN.deletes||[]).map(Number)), ch=IN.changes||[], errors=[], cl=[];
-        const fin=new Map(of(ds).filter(p=>!dels.has(p.id)).map(p=>[p.id,p.sid+'|'+p.session]));
-        ch.forEach((x,i)=>{const c=clean(x),rid=+x.rowid||0;if(!c){errors.push({i,error:'ไม่มีรหัส'});return;}cl.push([i,rid,c]);fin.set(rid||'n'+i,c.sid+'|'+c.session);});
-        const cnt={};fin.forEach(v=>cnt[v]=(cnt[v]||0)+1);
-        cl.forEach(([i,rid,c])=>{if(cnt[c.sid+'|'+c.session]>1)errors.push({i,error:`รหัส ${c.sid}${c.session?' รอบ '+c.session:''} ซ้ำ`});});
-        if(errors.length) return {ok:false,errors,error:`มีแถวที่ต้องแก้ ${errors.length} แถว`};
-        DB.people=DB.people.filter(p=>!(p.ds===ds&&dels.has(p.id)));let ins=0,upd=0;
-        cl.forEach(([i,rid,c])=>{if(rid){const p=DB.people.find(x=>x.id===rid&&x.ds===ds);if(p){p.sid=c.sid;F.forEach(k=>p[k]=c[k]);upd++;}}else{DB.people.push({id:++DB.seq,ds,...c,registered_at:null});ins++;}});
-        save(); return {ok:true,inserted:ins,updated:upd,deleted:dels.size};}
-      default: return {error:'ไม่รู้จักคำสั่ง'};
-    }
-  }
-  const realFetch=window.fetch.bind(window);
-  window.fetch=async(url,opt)=>{
-    if(String(url).split('?')[0].endsWith('api.php')){
-      await new Promise(r=>setTimeout(r,120));
-      let res; try{ res=handle(JSON.parse(opt&&opt.body||'{}')); }catch(e){ res={error:e.message}; }
-      return new Response(JSON.stringify(res),{status:200,headers:{'Content-Type':'application/json'}});
-    }
-    return realFetch(url,opt);
-  };
-  window.resetDemo=()=>{try{localStorage.removeItem(STORE);}catch(e){} location.reload();};
-})();
-</script>
 <script>
 const VENUE = {
   A:{startRow:1, floor:'ชั้นล่าง ซ้าย', seatCounts:[11,12,13,13,14,15,15,16,17,17,18,19,19,20,21,22]},
